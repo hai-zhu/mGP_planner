@@ -19,8 +19,8 @@ function h = plot_camera_fov(ax, cam_pos, cam_roll, cam_pitch, cam_yaw, ...
 
     % compute the four "bottom" points under zero pitch and yaw
     % and as camera at origin
-    bottom_dy = fov_range_max * sin(0.5*fov_x);
-    bottom_dz = fov_range_max * sin(0.5*fov_y);
+    bottom_dy = fov_range_max * tan(0.5*fov_x);
+    bottom_dz = fov_range_max * tan(0.5*fov_y);
     upper_left = [fov_range_max; bottom_dy; bottom_dz];
     upper_right = [fov_range_max; -bottom_dy; bottom_dz];
     lower_left = [fov_range_max; bottom_dy; -bottom_dz];

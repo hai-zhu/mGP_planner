@@ -7,8 +7,8 @@ global geodesic_library;
 geodesic_library = 'geodesic_debug';                %"release" is faster and "debug" does additional checks
 
 %% Load a mesh
-data = load('cylinder_center.mat');
-TR = data.TR_1;
+data = load('simple_cylinder_solid.mat');
+TR = data.TR;
 
 %% Compute the shortest path
 vertices = TR.Points;

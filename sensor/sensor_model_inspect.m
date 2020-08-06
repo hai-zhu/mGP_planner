@@ -1,14 +1,15 @@
-function [var] = sensor_model_inspect(altitude, planning_parameters)
-% Inverse model of sensor to inspect a surface.
+function [var] = sensor_model_inspect(range, incidence, sensor_parameters)
+% Measurement model of sensor to inspect a surface.
 %
 % Input:
-% altitude = current UAV altitude
+%   range: range from the camera to the face, [m]
+%   incidence: cosine value of the face incidence angle
 % ---
 % Output:
-% var = variance associated with measurement
+%   var = variance associated with measurement
 
-var = planning_parameters.sensor_coeff_A .* ...
-    (1 - exp(-planning_parameters.sensor_coeff_B .* altitude));
+var = sensor_parameters.sensor_coeff_A .* ...
+    (1 - exp(-sensor_parameters.sensor_coeff_B .* range));
 
 
 end
