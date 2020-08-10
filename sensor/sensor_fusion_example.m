@@ -164,7 +164,7 @@ for i = 1 : num_measurements
             TR.Points(:,3), faces_map.m, 'EdgeAlpha', 0);
         caxis([0 1]);
         if (i == num_measurements)
-            colorbar;
+%             colorbar;
         end
         
         % variance
@@ -181,7 +181,7 @@ for i = 1 : num_measurements
             TR.Points(:,3), P_post, 'EdgeAlpha', 0);
         caxis([0 var_max]);
         if (i == num_measurements)
-            colorbar;
+%             colorbar;
         end
         
     end

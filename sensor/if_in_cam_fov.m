@@ -1,13 +1,13 @@
 function in = if_in_cam_fov(...
-    facet_points, facet_center, facet_normal, ...
+    face_points, face_center, face_normal, ...
     cam_pos, cam_roll, cam_pitch, cam_yaw, ...
     sensor_parameters)
 % Determine if the triangle facet is in the camera's FOV
 %
 % Input:
-%   facet_points: points of the facet triangle, [3x3], m
-%   facet_center: center of the facet triangle, [3x1], m
-%   facet_normal: normal of the facet triangle, [3x1], m
+%   face_points: points of the facet triangle, [3x3], m
+%   face_center: center of the facet triangle, [3x1], m
+%   face_normal: normal of the facet triangle, [3x1], m
 %   cam_pos: camera position, [3x1], m
 %   cam_roll: camera roll, rad
 %   cam_pitch: camera pitch, rad
@@ -28,7 +28,7 @@ function in = if_in_cam_fov(...
     
     % first determine if in the range of distance and incidence
     [range, incidence_cos] = get_incidence_range(...
-        facet_points, facet_center, facet_normal, cam_pos);
+        face_points, face_center, face_normal, cam_pos);
     if range > fov_range_max || range < fov_range_min
         in = 0;
         return;
@@ -41,7 +41,7 @@ function in = if_in_cam_fov(...
     % then determine if in the fov
     [A, b] = get_camera_fov_constraints(cam_pos, cam_roll, cam_pitch, cam_yaw, ...
         fov_x, fov_y, fov_range_min, fov_range_max);
-    if sum(A*facet_center > b) > 0      % vialting any one
+    if sum(A*face_center > b) > 0      % vialting any one
         in = 0;
         return;
     end

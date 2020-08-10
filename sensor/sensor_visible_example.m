@@ -1,4 +1,4 @@
-close all
+% close all
 clear all
 clear 
 clc 
@@ -18,30 +18,27 @@ for iFace = 1 : num_faces
     F_points(iFace, :, 2) = TR.Points(TR.ConnectivityList(iFace, 2), :);
     F_points(iFace, :, 3) = TR.Points(TR.ConnectivityList(iFace, 3), :);
 end
-% sensor model
-sensor_parameters.fov_x = deg2rad(60);
-sensor_parameters.fov_y = deg2rad(60);
-sensor_parameters.fov_range_min = 1;
-sensor_parameters.fov_range_max = 8;
-sensor_parameters.incidence_range_min = cos(deg2rad(70));
-% camera state
-% cam_pos = [5; -5; 15];
-% cam_yaw = deg2rad(90);
-cam_pos = [10; -3; 12];
-cam_yaw = deg2rad(120);
-cam_roll = deg2rad(0);
-cam_pitch = deg2rad(15);
+
+%% Parameters
+[sensor_parameters, map_parameters, planning_parameters, ...
+    matlab_parameters] = load_parameteres(num_faces, F_center, F_normal, F_points);
+
+
+%% camera state
+viewpoints = [  0         0         4.0000    0.7854;
+                0.6098   -4.0791   14.0478    1.0797;
+                8.3115   -2.0126   24.8889    1.8517;
+                17.8547    8.3258   20.0581   -2.9479;
+                16.2890   14.3044    9.4139   -2.4625;
+                9.5461   19.6234   14.6199   -1.8254];
+i = 5;
+cam_pos = viewpoints(i, 1:3)';
+cam_yaw = sensor_parameters.cam_yaw + viewpoints(i, 4);
+cam_roll = sensor_parameters.cam_roll;
+cam_pitch = sensor_parameters.cam_pitch;
 % determine which parts are feasible for taking measurements
-F_visible = zeros(num_faces, 1);
-faces_visible = [];
-for iFace = 1 : num_faces
-    in = if_in_cam_fov(F_points(iFace, :, :), F_center(iFace,:)', F_normal(iFace,:)', ...
-        cam_pos, cam_roll, cam_pitch, cam_yaw, sensor_parameters);
-    F_visible(iFace) = in;
-    if in
-        faces_visible = [faces_visible; iFace];
-    end
-end
+[F_visible, faces_visible] = get_visible_faces(num_faces, F_points, F_center, ...
+    F_normal, cam_pos, cam_roll, cam_pitch, cam_yaw, sensor_parameters);
     
 
 %% Visualization
