@@ -1,8 +1,12 @@
-% a planning example
+% a plot planning example
 close all
 clear all
 clear 
 clc 
+
+% Random number generator
+matlab_parameters.seed_num = 3;
+rng(matlab_parameters.seed_num, 'twister');
 
 %% Environment
 % map environments
@@ -106,6 +110,7 @@ end
 
 %% Take first measurement
 viewpoint_init = [0, 0, 4, deg2rad(45)];
+% comment if not taking a first measurement
 faces_map = take_measurement_at_viewpoint(viewpoint_init, faces_map, ...
         ground_truth_faces_map, map_parameters, sensor_parameters);
 P_post = diag(faces_map.P);
@@ -143,67 +148,8 @@ if (matlab_parameters.visualize_map)
 end
 
 
-%% Lattice viewpoints
-data_lattice = load('cylinder_lattice_viewpoints_1.mat');
-lattice_viewpoints = data_lattice.lattice_viewpoints;
-num_lattice_viewpoints = size(lattice_viewpoints, 1);
-
-
-%% Planning:
-tic
-
-%% Step 1: Grid search on the lattice viewpoints
-P_trace_prev = P_trace_init;
-viewpoint_prev = viewpoint_init;
-faces_map_plan = faces_map;
-path = search_lattice_viewpoints(viewpoint_prev, lattice_viewpoints, ...
-    faces_map, map_parameters, sensor_parameters, planning_parameters);
-obj = compute_objective_inspect(path, faces_map, map_parameters, sensor_parameters, ...
-    planning_parameters);
-disp(['Objective before optimization: ', num2str(obj)]);
-
-%% STEP 2. CMA-ES optimization, only optimize position now.
-path_optimized = optimize_with_cmaes_inspect(path, faces_map, map_parameters, ...
-    sensor_parameters, planning_parameters, optimization_parameters);
-
-%% Plan Execution %%
-% Create polynomial path through the control points.
-trajectory = plan_path_waypoints(path_optimized(:,1:3), ...
-        planning_parameters.max_vel, planning_parameters.max_acc);
-
-% Sample trajectory to find locations to take measurements at.
-[t, measurement_points, ~, ~] = ...
-    sample_trajectory(trajectory, 1/planning_parameters.measurement_frequency);
-
-% Find the corresponding yaw
-num_points_meas = size(measurement_points,1);
-viewpoints_meas = zeros(num_points_meas, 4);
-center_pos = [6; 6; 11];
-for i = 1 : num_points_meas
-    viewpoints_meas(i, 1:3) = measurement_points(i, 1:3);
-    dx = center_pos(1) - viewpoints_meas(i, 1);
-    dy = center_pos(2) - viewpoints_meas(i, 2);
-    viewpoints_meas(i, 4) = atan2(dy, dx);
-end
-
-% Take measurements along path.
-for i = 2:size(measurement_points,1)
-    faces_map = take_measurement_at_viewpoint(viewpoints_meas(i,:), faces_map, ...
-            ground_truth_faces_map, map_parameters, sensor_parameters);
-end
-
-disp(['Trace after execution: ', num2str(trace(faces_map.P))]);
-disp(['Time after execution: ', num2str(get_trajectory_total_time(trajectory))]);
-gain = P_trace_init - trace(faces_map.P);
-if (strcmp(planning_parameters.obj, 'rate'))
-    cost = max(get_trajectory_total_time(trajectory), 1/planning_parameters.measurement_frequency);
-    disp(['Objective after optimization: ', num2str(-gain/cost)]);
-elseif (strcmp(planning_parameters.obj, 'exponential'))
-    cost = get_trajectory_total_time(trajectory);
-    disp(['Objective after optimization: ', num2str(-gain*exp(-planning_parameters.lambda*cost))]);
-end
-P_post = diag(faces_map.P);
-
+%% Planning results
+load metrics.mat
 if (matlab_parameters.visualize_map)
     
     subplot(2, 4, 4)
@@ -216,7 +162,7 @@ if (matlab_parameters.visualize_map)
     daspect([1 1 1]);
     view(3);
     trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
-        TR.Points(:,3), faces_map.m, 'EdgeAlpha', 0);
+        TR.Points(:,3), metrics.faces_map_m(end,:)', 'EdgeAlpha', 0);
     caxis([0 1]);
     
     subplot(2, 4, 8)
@@ -225,11 +171,11 @@ if (matlab_parameters.visualize_map)
     xlabel('x [m]');
     ylabel('y [m]');
     zlabel('z [m]');
-    title(['Var. - final Trace = ', num2str(trace(faces_map.P), 5)])
+    title(['Var. - final Trace = ', num2str(metrics.P_traces(end,:), 5)])
     daspect([1 1 1]);
     view(3);
     trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
-        TR.Points(:,3), P_post, 'EdgeAlpha', 0);
+        TR.Points(:,3), metrics.faces_map_P_diag(end,:)', 'EdgeAlpha', 0);
     caxis([0 var_max]);
     
 end
@@ -245,10 +191,6 @@ if (matlab_parameters.visualize_path)
     daspect(ax_path, [1 1 1]);
     view(ax_path, 3);
     
-    % path and viewpoints
-    axis([dim_x_env dim_y_env 0 dim_z_env(2)]);
-    plot_path_viewpoints(ax_path, 1, path_optimized, trajectory, viewpoints_meas);
-    
     % mesh object
     h_mesh = trimesh(TR);
     h_mesh.FaceColor = 'w';
@@ -257,30 +199,36 @@ if (matlab_parameters.visualize_path)
     h_mesh.LineWidth = 0.5;
     h_mesh.LineStyle = '-';
     
+    num_path_segments = size(metrics.trajectory_travelled, 1);
+    % path and viewpoints
+    axis([dim_x_env dim_y_env dim_z_env]);
+    plot_path_viewpoints(ax_path, num_path_segments, metrics.path_travelled, ...
+        metrics.trajectory_travelled, metrics.viewpoints_meas);
+
     % camera fov
-    for i = 1 : num_points_meas
-%         pause;
-        cam_pos = viewpoints_meas(i, 1:3)';
-        cam_roll = sensor_parameters.cam_roll;
-        cam_pitch = sensor_parameters.cam_pitch;
-        cam_yaw = sensor_parameters.cam_yaw + viewpoints_meas(i,4);
-        plot_camera_fov(ax_path, cam_pos, cam_roll, cam_pitch, cam_yaw, ...
-            sensor_parameters.fov_x, sensor_parameters.fov_y, ...
-            sensor_parameters.fov_range_max, 'r');
-        [F_visible, faces_visible] = get_visible_faces(num_faces, F_points, F_center, ...
-            F_normal, cam_pos, cam_roll, cam_pitch, cam_yaw, sensor_parameters);
-        for iFace = 1 : num_faces
-            if F_visible(iFace) == 1
-                patch(ax_path, 'XData', F_points(iFace, 1, :), ...
-                      'YData', F_points(iFace, 2, :), ...
-                      'ZData', F_points(iFace, 3, :), ...
-                      'FaceColor', 'b', ... 
-                      'FaceAlpha', 0.5, ...
-                      'EdgeColor', 'b');
+    if (matlab_parameters.visualize_cam)
+        for i = 1 : size(metrics.viewpoints_meas, 1)
+%             pause;
+            cam_pos = metrics.viewpoints_meas(i, 1:3)';
+            cam_roll = sensor_parameters.cam_roll;
+            cam_pitch = sensor_parameters.cam_pitch;
+            cam_yaw = sensor_parameters.cam_yaw + metrics.viewpoints_meas(i,4);
+            plot_camera_fov(ax_path, cam_pos, cam_roll, cam_pitch, cam_yaw, ...
+                sensor_parameters.fov_x, sensor_parameters.fov_y, ...
+                sensor_parameters.fov_range_max, 'r');
+            [F_visible, faces_visible] = get_visible_faces(num_faces, F_points, F_center, ...
+                F_normal, cam_pos, cam_roll, cam_pitch, cam_yaw, sensor_parameters);
+            for iFace = 1 : num_faces
+                if F_visible(iFace) == 1
+                    patch(ax_path, 'XData', F_points(iFace, 1, :), ...
+                          'YData', F_points(iFace, 2, :), ...
+                          'ZData', F_points(iFace, 3, :), ...
+                          'FaceColor', 'b', ... 
+                          'FaceAlpha', 0.5, ...
+                          'EdgeColor', 'b');
+                end
             end
         end
     end
     
 end
-
-

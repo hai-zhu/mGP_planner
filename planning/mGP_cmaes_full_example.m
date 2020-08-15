@@ -25,7 +25,7 @@ end
 
 
 %% Parameters
-[sensor_parameters, map_parameters, planning_parameters, ...
+[sensor_parameters, map_parameters, planning_parameters, optimization_parameters, ...
     matlab_parameters] = load_parameteres(num_faces, F_center, F_normal, F_points);
 
 
@@ -149,7 +149,7 @@ end
 
 
 %% Lattice viewpoints
-data_lattice = load('cylinder_lattice_viewpoints_0.mat');
+data_lattice = load('cylinder_lattice_viewpoints_1.mat');
 lattice_viewpoints = data_lattice.lattice_viewpoints;
 num_lattice_viewpoints = size(lattice_viewpoints, 1);
 
@@ -171,7 +171,7 @@ while (time_elapsed < planning_parameters.time_budget)
 
     %% STEP 2. CMA-ES optimization, only optimize position now.
     path_optimized = optimize_with_cmaes_inspect(path, faces_map, map_parameters, ...
-        sensor_parameters, planning_parameters);
+        sensor_parameters, planning_parameters, optimization_parameters);
     
     %% Plan Execution %%
     % Create polynomial path through the control points.
@@ -247,7 +247,7 @@ if (matlab_parameters.visualize_map)
     daspect([1 1 1]);
     view(3);
     trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
-        TR.Points(:,3), faces_map.m, 'EdgeAlpha', 0);
+        TR.Points(:,3), metrics.faces_map_m(end,:)', 'EdgeAlpha', 0);
     caxis([0 1]);
     
     subplot(2, 4, 8)
@@ -256,11 +256,11 @@ if (matlab_parameters.visualize_map)
     xlabel('x [m]');
     ylabel('y [m]');
     zlabel('z [m]');
-    title(['Var. - final Trace = ', num2str(trace(faces_map.P), 5)])
+    title(['Var. - final Trace = ', num2str(metrics.P_traces(end,:), 5)])
     daspect([1 1 1]);
     view(3);
     trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
-        TR.Points(:,3), diag(faces_map.P), 'EdgeAlpha', 0);
+        TR.Points(:,3), metrics.faces_map_P_diag(end,:)', 'EdgeAlpha', 0);
     caxis([0 var_max]);
     
 end
@@ -286,7 +286,7 @@ if (matlab_parameters.visualize_path)
     
     num_path_segments = size(metrics.trajectory_travelled, 1);
     % path and viewpoints
-    axis([dim_x_env dim_y_env dim_z_env]);
+    axis([dim_x_env dim_y_env 0 dim_z_env(2)]);
     plot_path_viewpoints(ax_path, num_path_segments, metrics.path_travelled, ...
         metrics.trajectory_travelled, metrics.viewpoints_meas);
 

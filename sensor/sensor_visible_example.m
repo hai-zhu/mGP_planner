@@ -31,7 +31,7 @@ viewpoints = [  0         0         4.0000    0.7854;
                 17.8547    8.3258   20.0581   -2.9479;
                 16.2890   14.3044    9.4139   -2.4625;
                 9.5461   19.6234   14.6199   -1.8254];
-i = 5;
+i = 2;
 cam_pos = viewpoints(i, 1:3)';
 cam_yaw = sensor_parameters.cam_yaw + viewpoints(i, 4);
 cam_roll = sensor_parameters.cam_roll;

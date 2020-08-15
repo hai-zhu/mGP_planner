@@ -30,32 +30,35 @@ function path = search_lattice_viewpoints(viewpoint_init, lattice_viewpoints, ..
 
             viewpoint_eval = lattice_viewpoints(i, :);
             
-            % if the viewpoint is in LoS?
-            
-            faces_map_eval =  predict_map_var_update(viewpoint_eval, faces_map, ...
-                map_parameters, sensor_parameters);
-            P_trace = trace(faces_map_eval.P);
+            % if the viewpoint is in LoS
+            if (if_in_los(viewpoint_prev, viewpoint_eval))
+                faces_map_eval =  predict_map_var_update(viewpoint_eval, faces_map, ...
+                    map_parameters, sensor_parameters);
+                P_trace = trace(faces_map_eval.P);
 
-            gain = P_trace_prev - P_trace;
+                gain = P_trace_prev - P_trace;
 
-            if (strcmp(planning_parameters.obj, 'exponential'))
-                cost = pdist([viewpoint_prev(1:3); viewpoint_eval(1:3)])/planning_parameters.max_vel;
-                obj = -gain*exp(-planning_parameters.lambda*cost);
-            elseif (strcmp(planning_parameters.obj, 'rate'))
-                cost = max(pdist([viewpoint_prev(1:3); viewpoint_eval(1:3)])/planning_parameters.max_vel, ...
-                    1/planning_parameters.measurement_frequency);
-                obj = -gain/cost;
-            end
+                if (strcmp(planning_parameters.obj, 'exponential'))
+                    cost = pdist([viewpoint_prev(1:3); viewpoint_eval(1:3)])/planning_parameters.max_vel;
+                    obj = -gain*exp(-planning_parameters.lambda*cost);
+                elseif (strcmp(planning_parameters.obj, 'rate'))
+                    cost = max(pdist([viewpoint_prev(1:3); viewpoint_eval(1:3)])/planning_parameters.max_vel, ...
+                        1/planning_parameters.measurement_frequency);
+                    obj = -gain/cost;
+                end
 
-            %disp(['Point ', num2str(viewpoint_eval)]);
-            %disp(['Gain: ', num2str(gain)])
-            %disp(['Cost: ', num2str(cost)])
-            %disp(num2str(obj));
+                %disp(['Point ', num2str(viewpoint_eval)]);
+                %disp(['Gain: ', num2str(gain)])
+                %disp(['Cost: ', num2str(cost)])
+                %disp(num2str(obj));
 
-            % Update best solution.
-            if (obj < obj_min)
-                obj_min = obj;
-                viewpoint_best = viewpoint_eval;
+                % Update best solution.
+                if (obj < obj_min)
+                    obj_min = obj;
+                    viewpoint_best = viewpoint_eval;
+                end
+            else
+                continue;
             end
 
         end

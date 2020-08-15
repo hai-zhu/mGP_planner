@@ -37,20 +37,22 @@ cylinder_center = [6; 6; 11];
 cylerder_radius = 6;
 cylerder_height = 21;
 sensor_range = 4;
-xy = zeros(2, 6);
-phi = zeros(1, 6);
-da = 2*pi/6;
-for i = 1 : 6
+xy_num= 12;
+xy = zeros(2, xy_num);
+phi = zeros(1, xy_num);
+da = 2*pi/xy_num;
+for i = 1 : xy_num
     xy(1, i) = (cylerder_radius + sensor_range) * cos((i-1)*da) + cylinder_center(1);
     xy(2, i) = (cylerder_radius + sensor_range) * sin((i-1)*da) + cylinder_center(2);
     phi(1, i) = -pi + da*(i-1);
 end
-lattice_viewpoints = [xy', 4*ones(6,1), phi'; 
-                      xy', 8*ones(6,1), phi';
-                      xy', 12*ones(6,1), phi';
-                      xy', 16*ones(6,1), phi';
-                      xy', 20*ones(6,1), phi'; 
-                      xy', 24*ones(6,1), phi'];
+h_step = 2;
+h_num = 24 / h_step;
+lattice_viewpoints = [];
+for i = 1 : h_num
+    lattice_viewpoints = [lattice_viewpoints; ...
+                          xy', h_step*i*ones(xy_num,1), phi'];
+end
 num_lattice_viewpoints = size(lattice_viewpoints, 1);
 
 
@@ -93,7 +95,4 @@ for i = 1 : num_lattice_viewpoints
         sensor_parameters.fov_x, sensor_parameters.fov_y, ...
         sensor_parameters.fov_range_max, 'r');
 end
-
-
-
 

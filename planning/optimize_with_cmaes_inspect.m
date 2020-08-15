@@ -1,5 +1,5 @@
 function [path_optimized] = optimize_with_cmaes_inspect(path, faces_map, map_parameters, ...
-    sensor_parameters, planning_parameters)
+    sensor_parameters, planning_parameters, optimization_parameters)
 % Optimizes a polynomial path (defined by control points) using Covariance
 % Matrix Adaptation Evolutionary Strategy (CMA-ES).
 % ---
@@ -14,7 +14,7 @@ function [path_optimized] = optimize_with_cmaes_inspect(path, faces_map, map_par
     opt.IncPopSize = 1; %% Check this
 %     opt.PopSize = 25;
     opt.SaveVariables = 'off';
-    opt.MaxIter = planning_parameters.max_iters;
+    opt.MaxIter = optimization_parameters.max_iters;
     opt.Seed = randi(2^10);
 
     % Set bounds and covariances.
@@ -25,7 +25,7 @@ function [path_optimized] = optimize_with_cmaes_inspect(path, faces_map, map_par
     UBounds = [dim_x_env(2); dim_y_env(2); dim_z_env(2)];
     opt.LBounds = repmat(LBounds, size(path,1)-1, 1);
     opt.UBounds = repmat(UBounds, size(path,1)-1, 1);
-    cov = [planning_parameters.cov_x; planning_parameters.cov_y; planning_parameters.cov_z];
+    cov = [optimization_parameters.cov_x; optimization_parameters.cov_y; optimization_parameters.cov_z];
     cov = repmat(cov, size(path,1)-1, 1);
 
     % Remove starting point (as this is fixed).
