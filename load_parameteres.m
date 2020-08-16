@@ -71,7 +71,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     %% matlab parameters
     matlab_parameters.visualize_map = 1;
     matlab_parameters.visualize_path = 1;
-    matlab_parameters.visualize_cam = 0;
+    matlab_parameters.visualize_cam = 1;
 
     disp('Parameters loaded!');
     
