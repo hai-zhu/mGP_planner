@@ -1,5 +1,5 @@
 function obj = compute_objective_inspect(control_points, faces_map, map_parameters,...
-    sensor_parameters, planning_parameters)
+    sensor_parameters, planning_parameters, optimization_parameters)
 % Calculates the expected informative objective for a polynomial path.
 % ---
 % Inputs:
@@ -21,12 +21,22 @@ function obj = compute_objective_inspect(control_points, faces_map, map_paramete
     trajectory = plan_path_waypoints(control_points(:,1:3), ...
         planning_parameters.max_vel, planning_parameters.max_acc);
     
+    % Find best yaw for each control point if not optimizing
+    if (optimization_parameters.opt_yaw)
+        control_yaws = control_points(:,4);
+    else
+        control_yaws = zeros(size(control_points, 1));
+        for i = 1 : size(control_points,1)
+            control_yaws(i) = get_best_yaw(control_points(i,1:3), map_parameters);
+        end
+    end
+    
     % Also create the yaw trajectory
     segment_time = zeros(trajectory.num_elements, 1);
     for i = 2 : trajectory.num_elements
         segment_time(i) = trajectory.segments(i-1).time;
     end
-    yaw_trajectory = plan_yaw_waypoints(control_points(:,4), segment_time);
+    yaw_trajectory = plan_yaw_waypoints(control_yaws, segment_time);
 
     % Sample trajectory to find locations to take measurements at.
     [~, points_meas, ~, ~] = sample_trajectory(trajectory, ...

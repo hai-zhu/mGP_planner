@@ -18,6 +18,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     
     %% map parameters
     % dimension
+    map_parameters.center_pos = [6; 6; 11];     % object center
     map_parameters.dim_x_env = [-8, 20];
     map_parameters.dim_y_env = [-8, 20];
     map_parameters.dim_z_env = [2, 30];
@@ -61,6 +62,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     %% global optimization paramters
     optimization_parameters.opt_method = 'cmaes'; % 'aco'
     optimization_parameters.max_iters = 30;
+    optimization_parameters.opt_yaw = 0;
     optimization_parameters.cov_x = 5;
     optimization_parameters.cov_y = 5;
     optimization_parameters.cov_z = 5;

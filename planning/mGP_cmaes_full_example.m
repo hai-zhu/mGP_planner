@@ -133,7 +133,7 @@ while (time_elapsed < planning_parameters.time_budget)
     path = search_lattice_viewpoints(viewpoint_prev, lattice_viewpoints, ...
         faces_map, map_parameters, sensor_parameters, planning_parameters);
     obj = compute_objective_inspect(path, faces_map, map_parameters, sensor_parameters, ...
-        planning_parameters);
+        planning_parameters, optimization_parameters);
     disp(['Objective before optimization: ', num2str(obj)]);
 
     %% STEP 2. CMA-ES optimization, only optimize position now.
@@ -144,12 +144,21 @@ while (time_elapsed < planning_parameters.time_budget)
     % Create polynomial path through the control points.
     trajectory = plan_path_waypoints(path_optimized(:,1:3), ...
             planning_parameters.max_vel, planning_parameters.max_acc);
+    % Find best yaw for each control point if not optimizing
+    if (optimization_parameters.opt_yaw)
+        control_yaws = path_optimized(:,4);
+    else
+        control_yaws = zeros(size(path_optimized, 1));
+        for i = 1 : size(path_optimized,1)
+            control_yaws(i) = get_best_yaw(path_optimized(i,1:3), map_parameters);
+        end
+    end 
     % Also create the yaw trajectory
     segment_time = zeros(trajectory.num_elements, 1);
     for i = 2 : trajectory.num_elements
         segment_time(i) = trajectory.segments(i-1).time;
     end
-    yaw_trajectory = plan_yaw_waypoints(path_optimized(:,4), segment_time);
+    yaw_trajectory = plan_yaw_waypoints(control_yaws, segment_time);
 
     % Sample trajectory to find locations to take measurements at.
     [times_meas, points_meas, ~, ~] = ...
@@ -191,7 +200,7 @@ while (time_elapsed < planning_parameters.time_budget)
     metrics.trajectory_travelled = [metrics.trajectory_travelled; trajectory];
     
     P_trace_prev = trace(faces_map.P);
-    viewpoint_prev = path_optimized(end,:); % End of trajectory (not last meas. point!)
+    viewpoint_prev = [path_optimized(end,:),control_yaws(end)]; % End of trajectory (not last meas. point!)
     
     time_elapsed = time_elapsed + get_trajectory_total_time(trajectory); 
     disp(['Time elapsed: ', num2str(time_elapsed)]);
