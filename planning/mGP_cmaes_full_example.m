@@ -140,26 +140,27 @@ while (time_elapsed < planning_parameters.time_budget)
     path_optimized = optimize_with_cmaes_inspect(path, faces_map, map_parameters, ...
         sensor_parameters, planning_parameters, optimization_parameters);
     
-    %% Plan Execution %%
+    %% Plan Execution %%   
     % Create polynomial path through the control points.
     trajectory = plan_path_waypoints(path_optimized(:,1:3), ...
             planning_parameters.max_vel, planning_parameters.max_acc);
+    % Also create the yaw trajectory
+    segment_time = zeros(trajectory.num_elements, 1);
+    for i = 2 : trajectory.num_elements
+        segment_time(i) = trajectory.segments(i-1).time;
+    end
+    yaw_trajectory = plan_yaw_waypoints(path_optimized(:,4), segment_time);
 
     % Sample trajectory to find locations to take measurements at.
     [times_meas, points_meas, ~, ~] = ...
         sample_trajectory(trajectory, 1/planning_parameters.measurement_frequency);
-    
+    [~, yaws_meas, ~, ~] = sample_trajectory(yaw_trajectory, ...
+        1/planning_parameters.measurement_frequency);
+
     % Find the corresponding yaw
     num_points_meas = size(points_meas,1);
-    viewpoints_meas = zeros(num_points_meas, 4);
-    center_pos = [6; 6; 11];
-    for i = 1 : num_points_meas
-        viewpoints_meas(i, 1:3) = points_meas(i, 1:3);
-        dx = center_pos(1) - viewpoints_meas(i, 1);
-        dy = center_pos(2) - viewpoints_meas(i, 2);
-        viewpoints_meas(i, 4) = atan2(dy, dx);
-    end
-
+    viewpoints_meas = [points_meas, yaws_meas];
+    
     % Take measurements along path.
     for i = 1:num_points_meas
         faces_map = take_measurement_at_viewpoint(viewpoints_meas(i,:), faces_map, ...
@@ -190,10 +191,7 @@ while (time_elapsed < planning_parameters.time_budget)
     metrics.trajectory_travelled = [metrics.trajectory_travelled; trajectory];
     
     P_trace_prev = trace(faces_map.P);
-    viewpoint_prev = path_optimized(end,1:3); % End of trajectory (not last meas. point!)
-    dx = center_pos(1) - viewpoint_prev(1);
-    dy = center_pos(2) - viewpoint_prev(2);
-    viewpoint_prev(4) = atan2(dy, dx);
+    viewpoint_prev = path_optimized(end,:); % End of trajectory (not last meas. point!)
     
     time_elapsed = time_elapsed + get_trajectory_total_time(trajectory); 
     disp(['Time elapsed: ', num2str(time_elapsed)]);

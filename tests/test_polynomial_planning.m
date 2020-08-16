@@ -42,20 +42,35 @@ view(ax_map, 3);
 
 %% 3D trajectory in obstacle-free env.
 % waypoints, the first one is the starting point
-waypoints = [0,     0,      4;
-             2.46,  0.62,   24.54;
-             10.93, 5.54,   22; %19.58;
-             16.82, 4.60,   15.02];
-% plan trajectory and sample
-trajectory = plan_path_waypoints(waypoints, max_vel, max_acc);
-[t, p] = sample_trajectory(trajectory, 0.1);
+waypoints = [0,     0,      4,      deg2rad(45);
+             2.46,  0.62,   24.54,  deg2rad(60);
+             10.93, 5.54,   22,     deg2rad(170);
+             16.82, 4.60,   15.02,  deg2rad(170)];
+% plan trajectory and sample, position
+trajectory = plan_path_waypoints(waypoints(:,1:3), max_vel, max_acc);
+dt = 0.5;
+[t, p] = sample_trajectory(trajectory, dt);
+% yaw trajectory
+segment_time = zeros(trajectory.num_elements, 1);
+for i = 2 : trajectory.num_elements
+    segment_time(i) = trajectory.segments(i-1).time;
+end
+yaw_trajectory = plan_yaw_waypoints(waypoints(:,4), segment_time);
+[t_yaw, yaw] = sample_trajectory(yaw_trajectory, dt);
 % visualize trajectory
 % figure;
 hold on;
 grid on;
 axis([dim_x_env dim_y_env dim_z_env]);
 scatter3(waypoints(:,1), waypoints(:,2), waypoints(:,3), 200, 'xk');
-h = plot_trajectory_cline(t, p);
+for i = 1 : size(waypoints, 1)
+    u = 4*cos(waypoints(i,4));
+    v = 4*sin(waypoints(i,4));
+    w = 0;
+    quiver3(waypoints(i,1), waypoints(i,2), waypoints(i,3), u, v, w, ...
+        'Color', 'r', 'LineWidth', 2.0, 'MaxHeadSize', 0.8);
+end
+h = plot_trajectory_cline(t, p, yaw);
 daspect([1 1 1]);
 view(3);
 

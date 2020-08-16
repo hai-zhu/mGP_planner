@@ -20,9 +20,18 @@ function obj = compute_objective_inspect(control_points, faces_map, map_paramete
     % Create polynomial path through the control points.
     trajectory = plan_path_waypoints(control_points(:,1:3), ...
         planning_parameters.max_vel, planning_parameters.max_acc);
+    
+    % Also create the yaw trajectory
+    segment_time = zeros(trajectory.num_elements, 1);
+    for i = 2 : trajectory.num_elements
+        segment_time(i) = trajectory.segments(i-1).time;
+    end
+    yaw_trajectory = plan_yaw_waypoints(control_points(:,4), segment_time);
 
     % Sample trajectory to find locations to take measurements at.
     [~, points_meas, ~, ~] = sample_trajectory(trajectory, ...
+        1/planning_parameters.measurement_frequency);
+    [~, yaws_meas, ~, ~] = sample_trajectory(yaw_trajectory, ...
         1/planning_parameters.measurement_frequency);
     
     % Sample trajecoty to check collisions
@@ -45,16 +54,9 @@ function obj = compute_objective_inspect(control_points, faces_map, map_paramete
         end
     end
     
-    % Find the corresponding yaw
+    % Viewpoints taking measurements
     num_points_meas = size(points_meas,1);
-    viewpoints_meas = zeros(num_points_meas, 4);
-    center_pos = [6; 6; 11];
-    for i = 1 : num_points_meas
-        viewpoints_meas(i, 1:3) = points_meas(i, 1:3);
-        dx = center_pos(1) - viewpoints_meas(i, 1);
-        dy = center_pos(2) - viewpoints_meas(i, 2);
-        viewpoints_meas(i, 4) = atan2(dy, dx);
-    end
+    viewpoints_meas = [points_meas, yaws_meas];
     
     if (planning_parameters.use_threshold)
         above_thres_ind = find(faces_map.m >= planning_parameters.lower_threshold);

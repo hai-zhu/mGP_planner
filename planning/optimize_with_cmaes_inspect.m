@@ -21,18 +21,21 @@ function [path_optimized] = optimize_with_cmaes_inspect(path, faces_map, map_par
     dim_x_env = map_parameters.dim_x_env;
     dim_y_env = map_parameters.dim_y_env;
     dim_z_env = map_parameters.dim_z_env;
-    LBounds = [dim_x_env(1); dim_y_env(1); dim_z_env(1)];
-    UBounds = [dim_x_env(2); dim_y_env(2); dim_z_env(2)];
+    LBounds = [dim_x_env(1); dim_y_env(1); dim_z_env(1); -pi];
+    UBounds = [dim_x_env(2); dim_y_env(2); dim_z_env(2);  pi];
     opt.LBounds = repmat(LBounds, size(path,1)-1, 1);
     opt.UBounds = repmat(UBounds, size(path,1)-1, 1);
-    cov = [optimization_parameters.cov_x; optimization_parameters.cov_y; optimization_parameters.cov_z];
+    cov = [optimization_parameters.cov_x; 
+           optimization_parameters.cov_y; 
+           optimization_parameters.cov_z;
+           optimization_parameters.cov_yaw];
     cov = repmat(cov, size(path,1)-1, 1);
 
     % Remove starting point (as this is fixed).
-    path_initial = reshape(path(2:end,1:3)', [], 1);
-    path_optimized = cmaes('optimize_viewpoints', path_initial, cov, opt, path(1,1:3), ...
+    path_initial = reshape(path(2:end,1:4)', [], 1);
+    path_optimized = cmaes('optimize_viewpoints', path_initial, cov, opt, path(1,1:4), ...
         faces_map, map_parameters, sensor_parameters, planning_parameters);
-    path_optimized = reshape(path_optimized, 3, [])';
-    path_optimized = [path(1,1:3); path_optimized];
+    path_optimized = reshape(path_optimized, 4, [])';
+    path_optimized = [path(1,1:4); path_optimized];
 
 end

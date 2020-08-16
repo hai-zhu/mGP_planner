@@ -64,6 +64,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     optimization_parameters.cov_x = 5;
     optimization_parameters.cov_y = 5;
     optimization_parameters.cov_z = 5;
+    optimization_parameters.cov_yaw = 3;
     
     %% matlab parameters
     matlab_parameters.visualize_map = 1;

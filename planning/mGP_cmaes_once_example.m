@@ -138,21 +138,22 @@ computation_time = toc
 % Create polynomial path through the control points.
 trajectory = plan_path_waypoints(path_optimized(:,1:3), ...
         planning_parameters.max_vel, planning_parameters.max_acc);
+% Also create the yaw trajectory
+segment_time = zeros(trajectory.num_elements, 1);
+for i = 2 : trajectory.num_elements
+    segment_time(i) = trajectory.segments(i-1).time;
+end
+yaw_trajectory = plan_yaw_waypoints(path_optimized(:,4), segment_time);
 
 % Sample trajectory to find locations to take measurements at.
 [t, measurement_points, ~, ~] = ...
     sample_trajectory(trajectory, 1/planning_parameters.measurement_frequency);
+[~, measurement_yaws, ~, ~] = sample_trajectory(yaw_trajectory, ...
+    1/planning_parameters.measurement_frequency);
 
 % Find the corresponding yaw
 num_points_meas = size(measurement_points,1);
-viewpoints_meas = zeros(num_points_meas, 4);
-center_pos = [6; 6; 11];
-for i = 1 : num_points_meas
-    viewpoints_meas(i, 1:3) = measurement_points(i, 1:3);
-    dx = center_pos(1) - viewpoints_meas(i, 1);
-    dy = center_pos(2) - viewpoints_meas(i, 2);
-    viewpoints_meas(i, 4) = atan2(dy, dx);
-end
+viewpoints_meas = [measurement_points, measurement_yaws];
 
 % Take measurements along path.
 for i = 2:size(measurement_points,1)

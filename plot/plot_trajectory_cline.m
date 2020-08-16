@@ -1,4 +1,4 @@
-function h = plot_trajectory(time, pos)
+function h = plot_trajectory_cline(time, pos, yaw)
 
     % Visualize a trajectory
     
@@ -11,4 +11,15 @@ function h = plot_trajectory(time, pos)
     
     h = cline(pos(:,1), pos(:,2), pos(:,3), time);
     set(h, 'LineWidth', 2.5);
+    
+    N = size(pos, 1);
+    for i = 1 : N
+        u = 2*cos(yaw(i));
+        v = 2*sin(yaw(i));
+        w = 0;
+        quiver3(pos(i,1), pos(i,2), pos(i,3), u, v, w, ...
+            'Color', 'b', 'LineWidth', 1.0, 'MaxHeadSize', 0.6);
+    end
+    
+    
 end

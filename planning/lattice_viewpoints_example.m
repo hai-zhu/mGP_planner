@@ -23,6 +23,7 @@ xy_num= 6;
 xy = zeros(2, xy_num);
 phi = zeros(1, xy_num);
 da = 2*pi/xy_num;
+dphi = deg2rad(30);
 for i = 1 : xy_num
     xy(1, i) = (cylerder_radius + sensor_range) * cos((i-1)*da) + cylinder_center(1);
     xy(2, i) = (cylerder_radius + sensor_range) * sin((i-1)*da) + cylinder_center(2);
@@ -33,7 +34,9 @@ h_num = 24 / h_step;
 lattice_viewpoints = [];
 for i = 1 : h_num
     lattice_viewpoints = [lattice_viewpoints; ...
-                          xy', h_step*i*ones(xy_num,1), phi'];
+                          xy', h_step*i*ones(xy_num,1), phi'-dphi; ...
+                          xy', h_step*i*ones(xy_num,1), phi'; ...
+                          xy', h_step*i*ones(xy_num,1), phi'+dphi;];
 end
 num_lattice_viewpoints = size(lattice_viewpoints, 1);
 
@@ -96,4 +99,4 @@ for i = 1 : num_lattice_viewpoints
     end
 end
 
-save('cylinder_lattice_viewpoints_0.mat', 'lattice_viewpoints', 'lattice_los_neighbors'); 
+save('cylinder_lattice_viewpoints_1.mat', 'lattice_viewpoints', 'lattice_los_neighbors'); 
