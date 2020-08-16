@@ -15,6 +15,7 @@ function obj = compute_objective_inspect(control_points, faces_map, map_paramete
     dim_x_env = map_parameters.dim_x_env;
     dim_y_env = map_parameters.dim_y_env;
     dim_z_env = map_parameters.dim_z_env;
+    dim_env_lower = [dim_x_env(1); dim_y_env(1); dim_z_env(1)];
 
     % Create polynomial path through the control points.
     trajectory = plan_path_waypoints(control_points(:,1:3), ...
@@ -23,6 +24,26 @@ function obj = compute_objective_inspect(control_points, faces_map, map_paramete
     % Sample trajectory to find locations to take measurements at.
     [~, points_meas, ~, ~] = sample_trajectory(trajectory, ...
         1/planning_parameters.measurement_frequency);
+    
+    % Sample trajecoty to check collisions
+%     coll_check_frequency = map_parameters.resolution / planning_parameters.max_vel;
+    coll_check_frequency = 1.0;
+    [~, points_coll_check, ~, ~] = sample_trajectory(trajectory, coll_check_frequency);
+    obj_coll = 0;
+    for i = 1 : size(points_coll_check, 1)
+        pos_val = points_coll_check(i, 1:3)';
+        idx = floor((map_parameters.resolution + pos_val - dim_env_lower) / ...
+            map_parameters.resolution);
+        % pos_val may be out of env, making idx invalid, but actually collision-free
+        try 
+            dis_val = map_parameters.esdf(idx(1),idx(2),idx(3));
+        catch
+            continue;
+        end
+        if dis_val <= planning_parameters.safe_radius   % in collision
+            obj_coll = obj_coll + 10;
+        end
+    end
     
     % Find the corresponding yaw
     num_points_meas = size(points_meas,1);
@@ -82,11 +103,13 @@ function obj = compute_objective_inspect(control_points, faces_map, map_paramete
     gain = P_i - P_f;
     if (strcmp(planning_parameters.obj, 'exponential'))
         cost = get_trajectory_total_time(trajectory);
-        obj = -gain*exp(-planning_parameters.lambda*cost);
+        obj_info = -gain*exp(-planning_parameters.lambda*cost);
     elseif (strcmp(planning_parameters.obj, 'rate'))
         cost = max(get_trajectory_total_time(trajectory), 1/planning_parameters.measurement_frequency);
-        obj = -gain/cost;
+        obj_info = -gain/cost;
     end
+    
+    obj = obj_coll + obj_info;
 
     %disp(['Measurements = ', num2str(i)])
     %disp(['Gain = ', num2str(gain)])

@@ -12,52 +12,19 @@ rng(matlab_parameters.seed_num, 'twister');
 % map environments
 data_mesh = load('simple_cylinder_solid.mat');
 TR = data_mesh.TR;
-num_faces = size(TR.ConnectivityList, 1);
-num_vertices = size(TR.Points, 1);
-F_normal = faceNormal(TR);
-F_center = incenter(TR);
-F_points = zeros(num_faces, 3, 3);
-for iFace = 1 : num_faces
-    F_points(iFace, :, 1) = TR.Points(TR.ConnectivityList(iFace, 1), :);    % 1x3
-    F_points(iFace, :, 2) = TR.Points(TR.ConnectivityList(iFace, 2), :);
-    F_points(iFace, :, 3) = TR.Points(TR.ConnectivityList(iFace, 3), :);
-end
 
 
 %% Parameters
-[sensor_parameters, map_parameters, planning_parameters, optimization_parameters, ...
-    matlab_parameters] = load_parameteres(num_faces, F_center, F_normal, F_points);
+[map_parameters, sensor_parameters, planning_parameters, optimization_parameters, ...
+    matlab_parameters] = load_parameteres(TR);
 
 
 %% Ground truth and initial map
-% ground truth
 dim_x_env = map_parameters.dim_x_env;
 dim_y_env = map_parameters.dim_y_env;
 dim_z_env = map_parameters.dim_z_env;
-data_map = load('map_3D.mat');
-map_3D = data_map.ground_truth_map;
-resolution = 0.5;
-F_value = zeros(num_faces, 1);
-for iF = 1 : num_faces
-    center_iF = F_center(iF, :);
-    idx_iF(1:2) = round(center_iF(1:2) / resolution) + 40;
-    idx_iF(3) = round(center_iF(3) / resolution) + 20;
-    F_value(iF) = map_3D(idx_iF(1), idx_iF(2), idx_iF(3));
-end
-ground_truth_faces_map = F_value;
-% prediction map
-faces_map.m = zeros(num_faces, 1);
-faces_map.P = zeros(num_faces, num_faces);
-% prior map
-faces_map.m = 0.5.*ones(size(faces_map.m));
-for i = 1 : num_faces
-    for j = i : num_faces
-        d_ij = norm(F_center(i,:)-F_center(j,:));
-        k_ij = cov_materniso_3(d_ij/10, map_parameters.sigma_f, map_parameters.l);
-        faces_map.P(i, j) = k_ij;
-        faces_map.P(j, i) = k_ij;
-    end
-end
+ground_truth_faces_map = create_ground_truth_map(map_parameters);
+faces_map = create_initial_map(map_parameters);
 % faces_map.P = eye(num_faces);       % for debugging
 P_prior = diag(faces_map.P);
 
@@ -75,7 +42,7 @@ if (matlab_parameters.visualize_map)
     daspect([1 1 1]);
     view(3);
     trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
-        TR.Points(:,3), F_value, 'EdgeAlpha', 0);
+        TR.Points(:,3), ground_truth_faces_map, 'EdgeAlpha', 0);
     caxis([0, 1]);
     
     subplot(2, 4, 2)
@@ -149,7 +116,7 @@ end
 
 
 %% Lattice viewpoints
-data_lattice = load('cylinder_lattice_viewpoints_1.mat');
+data_lattice = load('cylinder_lattice_viewpoints_0.mat');
 lattice_viewpoints = data_lattice.lattice_viewpoints;
 num_lattice_viewpoints = size(lattice_viewpoints, 1);
 
@@ -301,13 +268,14 @@ if (matlab_parameters.visualize_path)
             plot_camera_fov(ax_path, cam_pos, cam_roll, cam_pitch, cam_yaw, ...
                 sensor_parameters.fov_x, sensor_parameters.fov_y, ...
                 sensor_parameters.fov_range_max, 'r');
-            [F_visible, faces_visible] = get_visible_faces(num_faces, F_points, F_center, ...
-                F_normal, cam_pos, cam_roll, cam_pitch, cam_yaw, sensor_parameters);
+            [F_visible, faces_visible] = get_visible_faces(map_parameters.num_faces, ...
+                map_parameters.F_points, map_parameters.F_center, ...
+                map_parameters.F_normal, cam_pos, cam_roll, cam_pitch, cam_yaw, sensor_parameters);
             for iFace = 1 : num_faces
                 if F_visible(iFace) == 1
-                    patch(ax_path, 'XData', F_points(iFace, 1, :), ...
-                          'YData', F_points(iFace, 2, :), ...
-                          'ZData', F_points(iFace, 3, :), ...
+                    patch(ax_path, 'XData', map_parameters.F_points(iFace, 1, :), ...
+                          'YData', map_parameters.F_points(iFace, 2, :), ...
+                          'ZData', map_parameters.F_points(iFace, 3, :), ...
                           'FaceColor', 'b', ... 
                           'FaceAlpha', 0.5, ...
                           'EdgeColor', 'b');

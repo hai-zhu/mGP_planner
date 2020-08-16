@@ -20,8 +20,8 @@ for iFace = 1 : num_faces
 end
 
 %% Parameters
-[sensor_parameters, map_parameters, planning_parameters, ...
-    matlab_parameters] = load_parameteres(num_faces, F_center, F_normal, F_points);
+[map_parameters, sensor_parameters, planning_parameters, optimization_parameters, ...
+    matlab_parameters] = load_parameteres(TR);
 
 
 %% camera state

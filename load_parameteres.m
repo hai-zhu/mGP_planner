@@ -1,7 +1,9 @@
-function [sensor_parameters, map_parameters, planning_parameters, ...
+function [map_parameters, sensor_parameters, planning_parameters, ...
     optimization_parameters, matlab_parameters] = ...
-        load_parameteres(num_faces, F_center, F_normal, F_points)
+        load_parameteres(TR)
 
+    disp('Parameters loading...');
+    
     %% sensor parameter, fixed
     sensor_parameters.cam_roll = 0;
     sensor_parameters.cam_pitch = deg2rad(15);
@@ -15,17 +17,34 @@ function [sensor_parameters, map_parameters, planning_parameters, ...
     sensor_parameters.sensor_coeff_B = 0.2;
     
     %% map parameters
+    % dimension
     map_parameters.dim_x_env = [-8, 20];
     map_parameters.dim_y_env = [-8, 20];
     map_parameters.dim_z_env = [2, 30];
-    map_parameters.num_faces = num_faces;
-    map_parameters.F_center = F_center;
-    map_parameters.F_normal = F_normal;
-    map_parameters.F_points = F_points;
+    % mesh triangulation
+    map_parameters.TR = TR;
+    map_parameters.num_faces = size(TR.ConnectivityList, 1);
+    map_parameters.F_normal = faceNormal(TR);
+    map_parameters.F_center = incenter(TR);
+    map_parameters.F_points = zeros(map_parameters.num_faces, 3, 3);
+    for iFace = 1 : map_parameters.num_faces
+        map_parameters.F_points(iFace, :, 1) = TR.Points(TR.ConnectivityList(iFace, 1), :);    % 1x3
+        map_parameters.F_points(iFace, :, 2) = TR.Points(TR.ConnectivityList(iFace, 2), :);
+        map_parameters.F_points(iFace, :, 3) = TR.Points(TR.ConnectivityList(iFace, 3), :);
+    end
+    % transform mesh to voxel
+    map_parameters.resolution = 0.5;
+    data_occupancy = load('cylinder_map_occupancy');
+    map_parameters.occupancy = data_occupancy.occupancy;    
+    % compute the esdf
+    data_esdf = load('cylinder_map_esdf');
+    map_parameters.esdf = data_esdf.esdf; 
+    % kenel function parameters
     map_parameters.sigma_f = 1.3;
     map_parameters.l = 0.3;
     
     %% trajectory planning parameters
+    planning_parameters.safe_radius = 0.6;      % safe radius, [m]
     planning_parameters.max_vel = 4;            % [m/s]
     planning_parameters.max_acc = 3;            % [m/s^2]
     planning_parameters.max_yaw_rate = deg2rad(90); % [rad/s]
@@ -51,4 +70,6 @@ function [sensor_parameters, map_parameters, planning_parameters, ...
     matlab_parameters.visualize_path = 1;
     matlab_parameters.visualize_cam = 0;
 
+    disp('Parameters loaded!');
+    
 end

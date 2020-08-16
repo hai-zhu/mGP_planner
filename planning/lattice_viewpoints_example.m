@@ -8,36 +8,18 @@ clc
 % surface mesh
 data_mesh = load('simple_cylinder_solid.mat');
 TR = data_mesh.TR;
-% triangulation properties
-num_faces = size(TR.ConnectivityList, 1);
-num_vertices = size(TR.Points, 1);
-F_normal = faceNormal(TR);
-F_center = incenter(TR);
-F_points = zeros(num_faces, 3, 3);
-for iFace = 1 : num_faces
-    F_points(iFace, :, 1) = TR.Points(TR.ConnectivityList(iFace, 1), :);
-    F_points(iFace, :, 2) = TR.Points(TR.ConnectivityList(iFace, 2), :);
-    F_points(iFace, :, 3) = TR.Points(TR.ConnectivityList(iFace, 3), :);
-end
 
-%% sensor model
-sensor_parameters.cam_roll = 0;
-sensor_parameters.cam_pitch = deg2rad(15);
-sensor_parameters.cam_yaw = 0;
-sensor_parameters.fov_x = deg2rad(60);
-sensor_parameters.fov_y = deg2rad(60);
-sensor_parameters.fov_range_min = 1;
-sensor_parameters.fov_range_max = 8;
-sensor_parameters.incidence_range_min = cos(deg2rad(70));
-sensor_parameters.sensor_coeff_A = 0.05;
-sensor_parameters.sensor_coeff_B = 0.2;
+
+%% Parameters
+[map_parameters, sensor_parameters, planning_parameters, optimization_parameters, ...
+    matlab_parameters] = load_parameteres(TR);
 
 %% lattice viewpoints
 cylinder_center = [6; 6; 11];
 cylerder_radius = 6;
 cylerder_height = 21;
 sensor_range = 4;
-xy_num= 12;
+xy_num= 6;
 xy = zeros(2, xy_num);
 phi = zeros(1, xy_num);
 da = 2*pi/xy_num;
@@ -46,7 +28,7 @@ for i = 1 : xy_num
     xy(2, i) = (cylerder_radius + sensor_range) * sin((i-1)*da) + cylinder_center(2);
     phi(1, i) = -pi + da*(i-1);
 end
-h_step = 2;
+h_step = 4;
 h_num = 24 / h_step;
 lattice_viewpoints = [];
 for i = 1 : h_num
@@ -54,7 +36,6 @@ for i = 1 : h_num
                           xy', h_step*i*ones(xy_num,1), phi'];
 end
 num_lattice_viewpoints = size(lattice_viewpoints, 1);
-
 
 %% Visualization
 % surface mesh
@@ -96,3 +77,23 @@ for i = 1 : num_lattice_viewpoints
         sensor_parameters.fov_range_max, 'r');
 end
 
+%% Find LoS neighbors of each lattic
+lattice_los_neighbors = cell(num_lattice_viewpoints, 1);
+for i = 1 : num_lattice_viewpoints
+    lattice_los_neighbors{i} = i;
+    lattice_i = lattice_viewpoints(i, :)';
+    for j = 1 : num_lattice_viewpoints
+        if j == i
+            continue;
+        else
+            lattice_j = lattice_viewpoints(j, :)';
+            % test of i and j are in los
+            ij_in_los = if_in_los(lattice_i(1:3), lattice_j(1:3), map_parameters);
+            if (ij_in_los)
+                lattice_los_neighbors{i} = [lattice_los_neighbors{i}; j];
+            end
+        end
+    end
+end
+
+save('cylinder_lattice_viewpoints_0.mat', 'lattice_viewpoints', 'lattice_los_neighbors'); 

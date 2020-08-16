@@ -5,9 +5,10 @@ function path = search_lattice_viewpoints(viewpoint_init, lattice_viewpoints, ..
 % Starting point is fixed (no measurement taken here)
 % ---
 % Inputs:
-% viewpoint_init: starting viewpoint
-% lattice_viewpoints: list of candidates to evaluate
-% faces_map: current faces map (mean + covariance)
+%   - viewpoint_init: starting viewpoint
+%   - lattice_viewpoints: list of candidates to evaluate
+%   - lattice_los_neighbors: lattice los neighbors information
+%   - faces_map: current faces map (mean + covariance)
 % ---
 % Output:
 % path: grid search result
@@ -31,7 +32,7 @@ function path = search_lattice_viewpoints(viewpoint_init, lattice_viewpoints, ..
             viewpoint_eval = lattice_viewpoints(i, :);
             
             % if the viewpoint is in LoS
-            if (if_in_los(viewpoint_prev, viewpoint_eval))
+            if (if_in_los(viewpoint_prev(1:3)', viewpoint_eval(1:3)', map_parameters))
                 faces_map_eval =  predict_map_var_update(viewpoint_eval, faces_map, ...
                     map_parameters, sensor_parameters);
                 P_trace = trace(faces_map_eval.P);
