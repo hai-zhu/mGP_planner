@@ -44,6 +44,7 @@ if (matlab_parameters.visualize_map)
     trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
         TR.Points(:,3), ground_truth_faces_map, 'EdgeAlpha', 0);
     caxis([0, 1]);
+    colormap jet
     
     subplot(2, 4, 2)
     hold on;
@@ -57,6 +58,7 @@ if (matlab_parameters.visualize_map)
     trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
         TR.Points(:,3), faces_map.m, 'EdgeAlpha', 0);
     caxis([0, 1]);
+    colormap jet
     
     subplot(2, 4, 6)
     hold on;
@@ -98,6 +100,7 @@ if (matlab_parameters.visualize_map)
     trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
         TR.Points(:,3), faces_map.m, 'EdgeAlpha', 0);
     caxis([0 1]);
+    colormap jet
     
     subplot(2, 4, 7)
     hold on;
@@ -223,6 +226,7 @@ if (matlab_parameters.visualize_map)
     trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
         TR.Points(:,3), metrics.faces_map_m(end,:)', 'EdgeAlpha', 0);
     caxis([0 1]);
+    colormap jet
     
     subplot(2, 4, 8)
     hold on;
