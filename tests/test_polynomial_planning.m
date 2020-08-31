@@ -11,7 +11,7 @@ max_acc = 3;
 
 %% Environment
 % map environments
-data_mesh = load('simple_cylinder_solid.mat');
+data_mesh = load('cylinder_mesh.mat');
 TR = data_mesh.TR;
 num_faces = size(TR.ConnectivityList, 1);
 num_vertices = size(TR.Points, 1);

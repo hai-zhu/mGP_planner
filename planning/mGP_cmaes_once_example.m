@@ -5,13 +5,24 @@ clear
 clc 
 
 %% Environment
-% map environments
-data_mesh = load('simple_cylinder_solid.mat');
+model_name = 'cylinder';
+% mesh
+data_mesh = load([model_name, '_mesh.mat']);
+model.TR = data_mesh.TR;
 TR = data_mesh.TR;
+% occupancy
+data_occupancy = load([model_name, '_map_occupancy']);
+model.occupancy = data_occupancy.occupancy; 
+% esdf
+data_esdf = load([model_name, '_map_esdf']);
+model.esdf = data_esdf.esdf; 
+% true temperature field
+data_temperature_field = load([model_name, '_temperature_field']);
+model.temperature_field = data_temperature_field.F_value;
 
 %% Parameters
 [map_parameters, sensor_parameters, planning_parameters, optimization_parameters, ...
-    matlab_parameters] = load_parameteres(TR);
+    matlab_parameters] = load_parameteres(model);
 
 
 %% Ground truth and initial map
@@ -113,7 +124,7 @@ end
 
 
 %% Lattice viewpoints
-data_lattice = load('cylinder_lattice_viewpoints_0.mat');
+data_lattice = load([model_name, '_lattice_viewpoints.mat']);
 lattice_viewpoints = data_lattice.lattice_viewpoints;
 num_lattice_viewpoints = size(lattice_viewpoints, 1);
 

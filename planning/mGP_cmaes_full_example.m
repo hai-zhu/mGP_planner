@@ -8,15 +8,29 @@ clc
 matlab_parameters.seed_num = 3;
 rng(matlab_parameters.seed_num, 'twister');
 
+% map cov initialization
+P_ini_method = 1;           % 1-identity; 2-random spd; 3-GP; 4-mGP
+
 %% Environment
-% map environments
-data_mesh = load('simple_cylinder_solid.mat');
+model_name = 'cylinder';
+% mesh
+data_mesh = load([model_name, '_mesh.mat']);
+model.TR = data_mesh.TR;
 TR = data_mesh.TR;
+% occupancy
+data_occupancy = load([model_name, '_map_occupancy']);
+model.occupancy = data_occupancy.occupancy; 
+% esdf
+data_esdf = load([model_name, '_map_esdf']);
+model.esdf = data_esdf.esdf; 
+% true temperature field
+data_temperature_field = load([model_name, '_temperature_field']);
+model.temperature_field = data_temperature_field.F_value;
 
 
 %% Parameters
 [map_parameters, sensor_parameters, planning_parameters, optimization_parameters, ...
-    matlab_parameters] = load_parameteres(TR);
+    matlab_parameters] = load_parameteres(model);
 
 
 %% Ground truth and initial map
@@ -25,7 +39,16 @@ dim_y_env = map_parameters.dim_y_env;
 dim_z_env = map_parameters.dim_z_env;
 ground_truth_faces_map = create_ground_truth_map(map_parameters);
 faces_map = create_initial_map(map_parameters);
-% faces_map.P = eye(num_faces);       % for debugging
+switch P_ini_method
+    case 1
+        faces_map.P = eye(map_parameters.num_faces);	% for debugging
+    case 2
+        SPDmatrix = generateSPDmatrix(map_parameters.num_faces);
+        faces_map.P = SPDmatrix;
+    case 3
+    case 4
+    otherwise
+end
 P_prior = diag(faces_map.P);
 
 if (matlab_parameters.visualize_map)
@@ -119,7 +142,7 @@ end
 
 
 %% Lattice viewpoints
-data_lattice = load('cylinder_lattice_viewpoints_0.mat');
+data_lattice = load([model_name, '_lattice_viewpoints.mat']);
 lattice_viewpoints = data_lattice.lattice_viewpoints;
 num_lattice_viewpoints = size(lattice_viewpoints, 1);
 
@@ -210,8 +233,6 @@ while (time_elapsed < planning_parameters.time_budget)
 
 end
 
-save('metrics.mat', 'metrics'); 
-
 if (matlab_parameters.visualize_map)
     
     subplot(2, 4, 4)
@@ -296,3 +317,5 @@ if (matlab_parameters.visualize_path)
     end
     
 end
+
+% save('metrics.mat', 'metrics'); 

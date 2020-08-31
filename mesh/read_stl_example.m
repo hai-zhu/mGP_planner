@@ -19,6 +19,9 @@ F_center = incenter(TR);
 % mesh
 fig_mesh = figure;
 hold on;
+xlabel('x [m]')
+ylabel('y [m]')
+zlabel('z [m]')
 ax_mesh = fig_mesh.CurrentAxes;
 daspect(ax_mesh, [1 1 1]);
 view(ax_mesh, 3);
@@ -32,7 +35,8 @@ h_mesh.LineStyle = '-';
 % patch each face and view the normal
 for iF = 1 : num_faces
 %     pause(0.05);
-%     pause;
+    pause;
+    disp(['Face ', num2str(iF)]);
     % face triangle points
     F_points_idx_iF = TR.ConnectivityList(iF, :);
     F_points_iF = [ TR.Points(F_points_idx_iF(1), :); ...
@@ -44,7 +48,7 @@ for iF = 1 : num_faces
     patch(ax_mesh, 'XData', F_points_iF(:, 1), ...
           'YData', F_points_iF(:, 2), ...
           'ZData', F_points_iF(:, 3), ...
-          'FaceColor', 'w', ... % rand*ones(1,3)
+          'FaceColor', rand*ones(1,3), ...
           'FaceAlpha', 1.0, ...
           'EdgeColor', 'c');
     % plot face center

@@ -3,10 +3,23 @@ clear all
 clear 
 clc 
 
-%% Load data
-% surface mesh
-data_mesh = load('simple_cylinder_solid.mat');
+%% Environment
+model_name = 'cylinder';
+% mesh
+data_mesh = load([model_name, '_mesh.mat']);
+model.TR = data_mesh.TR;
 TR = data_mesh.TR;
+% occupancy
+data_occupancy = load([model_name, '_map_occupancy']);
+model.occupancy = data_occupancy.occupancy; 
+% esdf
+data_esdf = load([model_name, '_map_esdf']);
+model.esdf = data_esdf.esdf; 
+% true temperature field
+data_temperature_field = load([model_name, '_temperature_field']);
+model.temperature_field = data_temperature_field.F_value;
+
+%% Load data
 % triangulation properties
 num_faces = size(TR.ConnectivityList, 1);
 num_vertices = size(TR.Points, 1);
@@ -21,8 +34,7 @@ end
 
 %% Parameters
 [map_parameters, sensor_parameters, planning_parameters, optimization_parameters, ...
-    matlab_parameters] = load_parameteres(TR);
-
+    matlab_parameters] = load_parameteres(model);
 
 %% camera state
 viewpoints = [  0         0         4.0000    0.7854;

@@ -9,14 +9,27 @@ matlab_parameters.seed_num = 3;
 rng(matlab_parameters.seed_num, 'twister');
 
 %% Environment
-% map environments
-data_mesh = load('simple_cylinder_solid.mat');
+model_name = 'cylinder';
+% mesh
+data_mesh = load([model_name, '_mesh.mat']);
+model.TR = data_mesh.TR;
 TR = data_mesh.TR;
+% occupancy
+data_occupancy = load([model_name, '_map_occupancy']);
+model.occupancy = data_occupancy.occupancy; 
+% esdf
+data_esdf = load([model_name, '_map_esdf']);
+model.esdf = data_esdf.esdf; 
+% true temperature field
+data_temperature_field = load([model_name, '_temperature_field']);
+model.temperature_field = data_temperature_field.F_value;
 
 %% Parameters
 [map_parameters, sensor_parameters, planning_parameters, optimization_parameters, ...
-    matlab_parameters] = load_parameteres(TR);
+    matlab_parameters] = load_parameteres(model);
 
+%% Planning results
+results_name = 'eye';
 
 %% Ground truth and initial map
 dim_x_env = map_parameters.dim_x_env;
@@ -75,7 +88,6 @@ if (matlab_parameters.visualize_map)
  
 end
 
-
 %% Take first measurement
 viewpoint_init = [0, 0, 4, deg2rad(45)];
 % comment if not taking a first measurement
@@ -116,9 +128,8 @@ if (matlab_parameters.visualize_map)
     
 end
 
-
 %% Planning results
-load metrics.mat
+load([results_name, '.mat']);
 if (matlab_parameters.visualize_map)
     
     subplot(2, 4, 4)
@@ -171,7 +182,7 @@ if (matlab_parameters.visualize_path)
     
     num_path_segments = size(metrics.trajectory_travelled, 1);
     % path and viewpoints
-    axis([dim_x_env dim_y_env dim_z_env]);
+    axis([dim_x_env dim_y_env 0 dim_z_env(2)]);
     plot_path_viewpoints(ax_path, num_path_segments, metrics.path_travelled, ...
         metrics.trajectory_travelled, metrics.viewpoints_meas);
 
@@ -203,3 +214,6 @@ if (matlab_parameters.visualize_path)
     end
     
 end
+
+%% Quantantive results
+

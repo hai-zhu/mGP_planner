@@ -1,6 +1,6 @@
 function [map_parameters, sensor_parameters, planning_parameters, ...
     optimization_parameters, matlab_parameters] = ...
-        load_parameteres(TR)
+        load_parameteres(model)
 
     disp('Parameters loading...');
     
@@ -23,6 +23,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     map_parameters.dim_y_env = [-8, 20];
     map_parameters.dim_z_env = [2, 30];
     % mesh triangulation
+    TR = model.TR;
     map_parameters.TR = TR;
     map_parameters.num_faces = size(TR.ConnectivityList, 1);
     map_parameters.F_normal = faceNormal(TR);
@@ -35,11 +36,11 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     end
     % transform mesh to voxel
     map_parameters.resolution = 0.5;
-    data_occupancy = load('cylinder_map_occupancy');
-    map_parameters.occupancy = data_occupancy.occupancy;    
+    map_parameters.occupancy = model.occupancy;    
     % compute the esdf
-    data_esdf = load('cylinder_map_esdf');
-    map_parameters.esdf = data_esdf.esdf; 
+    map_parameters.esdf = model.esdf; 
+    % load the temperature field
+    map_parameters.temperature_field = model.temperature_field;
     % kenel function parameters
     map_parameters.sigma_f = 1.3;
     map_parameters.l = 0.3;
@@ -49,7 +50,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     planning_parameters.max_vel = 4;            % [m/s]
     planning_parameters.max_acc = 3;            % [m/s^2]
     planning_parameters.max_yaw_rate = deg2rad(90); % [rad/s]
-    planning_parameters.time_budget = 160;
+    planning_parameters.time_budget = 120;
     planning_parameters.lambda = 0.001;         % parameter to control 
                                                 % exploration-exploitation 
                                                 % trade-off in objective
@@ -61,7 +62,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     
     %% global optimization paramters
     optimization_parameters.opt_method = 'cmaes'; % 'aco'
-    optimization_parameters.max_iters = 30;
+    optimization_parameters.max_iters = 60;
     optimization_parameters.opt_yaw = 0;
     optimization_parameters.cov_x = 5;
     optimization_parameters.cov_y = 5;
