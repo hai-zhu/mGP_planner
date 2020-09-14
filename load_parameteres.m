@@ -22,11 +22,20 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     map_parameters.dim_x_env = [-8, 20];
     map_parameters.dim_y_env = [-8, 20];
     map_parameters.dim_z_env = [2, 30];
+    if strcmp(model.name, 'boeing747')
+        map_parameters.dim_x_env = [-8 80];
+        map_parameters.dim_y_env = [-6 70];
+        map_parameters.dim_z_env = [16 48];
+    end
     % mesh triangulation
     TR = model.TR;
     map_parameters.TR = TR;
     map_parameters.num_faces = size(TR.ConnectivityList, 1);
-    map_parameters.F_normal = faceNormal(TR);
+    dir = 1;
+    if strcmp(model.name, 'boeing747')
+        dir = -1;
+    end
+    map_parameters.F_normal = dir*faceNormal(TR);      % minus for boeing 747
     map_parameters.F_center = incenter(TR);
     map_parameters.F_points = zeros(map_parameters.num_faces, 3, 3);
     for iFace = 1 : map_parameters.num_faces
@@ -39,18 +48,24 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     map_parameters.occupancy = model.occupancy;    
     % compute the esdf
     map_parameters.esdf = model.esdf; 
+    if strcmp(model.name, 'boeing747')
+        map_parameters.occupancy = ~map_parameters.occupancy;
+        map_parameters.esdf = -map_parameters.esdf;
+    end
     % load the temperature field
     map_parameters.temperature_field = model.temperature_field;
     % kenel function parameters
-    map_parameters.sigma_f = 1.3;
-    map_parameters.l = 0.3;
+    map_parameters.sigma_f = exp(0.3);  % 0.01, 0.3, 0.6
+    map_parameters.l = exp(1.3); % 0.2, 1.3, 2.0
+    % max range for lattice search
+    map_parameters.lattice_range = 12;
     
     %% trajectory planning parameters
     planning_parameters.safe_radius = 0.6;      % safe radius, [m]
     planning_parameters.max_vel = 4;            % [m/s]
     planning_parameters.max_acc = 3;            % [m/s^2]
     planning_parameters.max_yaw_rate = deg2rad(90); % [rad/s]
-    planning_parameters.time_budget = 120;
+    planning_parameters.time_budget = 360;
     planning_parameters.lambda = 0.001;         % parameter to control 
                                                 % exploration-exploitation 
                                                 % trade-off in objective
@@ -62,7 +77,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     
     %% global optimization paramters
     optimization_parameters.opt_method = 'cmaes'; % 'aco'
-    optimization_parameters.max_iters = 60;
+    optimization_parameters.max_iters = 45;
     optimization_parameters.opt_yaw = 0;
     optimization_parameters.cov_x = 5;
     optimization_parameters.cov_y = 5;

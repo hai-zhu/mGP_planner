@@ -5,6 +5,7 @@ clc
 
 %% Environment
 model_name = 'cylinder';
+model.name = model_name;
 % mesh
 data_mesh = load([model_name, '_mesh.mat']);
 model.TR = data_mesh.TR;
@@ -57,7 +58,8 @@ cam_pitch = sensor_parameters.cam_pitch;
 % surface mesh
 fig_main = figure;
 hold on;
-axis([-8 20 -8 20 0 30]);
+grid on;
+axis([-6 18 -6 18 0 24]);
 xlabel('x [m]');
 ylabel('y [m]');
 zlabel('z [m]');

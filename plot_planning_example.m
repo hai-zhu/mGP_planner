@@ -10,6 +10,7 @@ rng(matlab_parameters.seed_num, 'twister');
 
 %% Environment
 model_name = 'cylinder';
+model.name = model_name;
 % mesh
 data_mesh = load([model_name, '_mesh.mat']);
 model.TR = data_mesh.TR;
@@ -29,7 +30,7 @@ model.temperature_field = data_temperature_field.F_value;
     matlab_parameters] = load_parameteres(model);
 
 %% Planning results
-results_name = 'eye';
+results_name = 'gp_smdm_01';
 
 %% Ground truth and initial map
 dim_x_env = map_parameters.dim_x_env;
@@ -44,7 +45,7 @@ if (matlab_parameters.visualize_map)
     
     figure;
     
-    subplot(2, 4, 1)
+    subplot(2, 3, 1)
     hold on;
     axis([-3 15 -3 15 0 25]);
     xlabel('x [m]');
@@ -58,7 +59,7 @@ if (matlab_parameters.visualize_map)
     caxis([0, 1]);
     colormap jet
     
-    subplot(2, 4, 2)
+    subplot(2, 3, 2)
     hold on;
     axis([-3 15 -3 15 0 25]);
     xlabel('x [m]');
@@ -72,7 +73,7 @@ if (matlab_parameters.visualize_map)
     caxis([0, 1]);
     colormap jet
     
-    subplot(2, 4, 6)
+    subplot(2, 3, 5)
     hold on;
     axis([-3 15 -3 15 0 25]);
     xlabel('x [m]');
@@ -97,42 +98,42 @@ P_post = diag(faces_map.P);
 P_trace_init = trace(faces_map.P);
 P_prior = P_post;
 
-if (matlab_parameters.visualize_map)
-
-    subplot(2, 4, 3)
-    hold on;
-    axis([-3 15 -3 15 0 25]);
-    xlabel('x [m]');
-    ylabel('y [m]');
-    zlabel('z [m]');
-    title('Mean - init ')
-    daspect([1 1 1]);
-    view(3);
-    trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
-        TR.Points(:,3), faces_map.m, 'EdgeAlpha', 0);
-    caxis([0 1]);
-    colormap jet
-    
-    subplot(2, 4, 7)
-    hold on;
-    axis([-3 15 -3 15 0 25]);
-    xlabel('x [m]');
-    ylabel('y [m]');
-    zlabel('z [m]');
-    title(['Var. - init Trace = ', num2str(trace(faces_map.P), 5)])
-    daspect([1 1 1]);
-    view(3);
-    trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
-        TR.Points(:,3), P_post, 'EdgeAlpha', 0);
-    caxis([0 var_max]);
-    
-end
+% if (matlab_parameters.visualize_map)
+% 
+%     subplot(2, 4, 3)
+%     hold on;
+%     axis([-3 15 -3 15 0 25]);
+%     xlabel('x [m]');
+%     ylabel('y [m]');
+%     zlabel('z [m]');
+%     title('Mean - init ')
+%     daspect([1 1 1]);
+%     view(3);
+%     trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
+%         TR.Points(:,3), faces_map.m, 'EdgeAlpha', 0);
+%     caxis([0 1]);
+%     colormap jet
+%     
+%     subplot(2, 4, 7)
+%     hold on;
+%     axis([-3 15 -3 15 0 25]);
+%     xlabel('x [m]');
+%     ylabel('y [m]');
+%     zlabel('z [m]');
+%     title(['Var. - init Trace = ', num2str(trace(faces_map.P), 5)])
+%     daspect([1 1 1]);
+%     view(3);
+%     trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
+%         TR.Points(:,3), P_post, 'EdgeAlpha', 0);
+%     caxis([0 var_max]);
+%     
+% end
 
 %% Planning results
 load([results_name, '.mat']);
 if (matlab_parameters.visualize_map)
     
-    subplot(2, 4, 4)
+    subplot(2, 3, 3)
     hold on;
     axis([-3 15 -3 15 0 25]);
     xlabel('x [m]');
@@ -146,7 +147,7 @@ if (matlab_parameters.visualize_map)
     caxis([0 1]);
     colormap jet
     
-    subplot(2, 4, 8)
+    subplot(2, 3, 6)
     hold on;
     axis([-3 15 -3 15 0 25]);
     xlabel('x [m]');
@@ -187,7 +188,7 @@ if (matlab_parameters.visualize_path)
         metrics.trajectory_travelled, metrics.viewpoints_meas);
 
     % camera fov
-    if (matlab_parameters.visualize_cam)
+    if (matlab_parameters.visualize_cam) % matlab_parameters.visualize_cam, true
         for i = 1 : size(metrics.viewpoints_meas, 1)
 %             pause;
             cam_pos = metrics.viewpoints_meas(i, 1:3)';

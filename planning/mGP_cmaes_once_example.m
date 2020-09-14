@@ -6,6 +6,7 @@ clc
 
 %% Environment
 model_name = 'cylinder';
+model.name = model_name;
 % mesh
 data_mesh = load([model_name, '_mesh.mat']);
 model.TR = data_mesh.TR;
@@ -156,7 +157,7 @@ trajectory = plan_path_waypoints(path_optimized(:,1:3), ...
 if (optimization_parameters.opt_yaw)
     control_yaws = path_optimized(:,4);
 else
-    control_yaws = zeros(size(path_optimized, 1));
+    control_yaws = zeros(size(path_optimized, 1), 1);
     for i = 1 : size(path_optimized,1)
         control_yaws(i) = get_best_yaw(path_optimized(i,1:3), map_parameters);
     end

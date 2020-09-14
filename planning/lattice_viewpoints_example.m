@@ -4,15 +4,27 @@ clear all
 clear 
 clc 
 
-%% Load data
-% surface mesh
-data_mesh = load('simple_cylinder_solid.mat');
+%% Environment
+model_name = 'cylinder';
+model.name = model_name;
+% mesh
+data_mesh = load([model_name, '_mesh.mat']);
+model.TR = data_mesh.TR;
 TR = data_mesh.TR;
+% occupancy
+data_occupancy = load([model_name, '_map_occupancy']);
+model.occupancy = data_occupancy.occupancy; 
+% esdf
+data_esdf = load([model_name, '_map_esdf']);
+model.esdf = data_esdf.esdf; 
+% true temperature field
+data_temperature_field = load([model_name, '_temperature_field']);
+model.temperature_field = data_temperature_field.F_value;
 
 
 %% Parameters
 [map_parameters, sensor_parameters, planning_parameters, optimization_parameters, ...
-    matlab_parameters] = load_parameteres(TR);
+    matlab_parameters] = load_parameteres(model);
 
 %% lattice viewpoints
 cylinder_center = [6; 6; 11];
@@ -75,9 +87,11 @@ for i = 1 : num_lattice_viewpoints
     quiver3(ax_main, cam_pos(1), cam_pos(2), cam_pos(3), u, v, w, ...
         'Color', 'b', 'LineWidth', 2.0, 'MaxHeadSize', 0.8);
     % cam fov
-    plot_camera_fov(ax_main, cam_pos', 0, sensor_parameters.cam_pitch, cam_yaw, ...
-        sensor_parameters.fov_x, sensor_parameters.fov_y, ...
-        sensor_parameters.fov_range_max, 'r');
+%     if i > 54 && i <= 72
+%         plot_camera_fov(ax_main, cam_pos', 0, sensor_parameters.cam_pitch, cam_yaw, ...
+%             sensor_parameters.fov_x, sensor_parameters.fov_y, ...
+%             sensor_parameters.fov_range_max, 'r');
+%     end
 end
 
 %% Find LoS neighbors of each lattic
@@ -99,4 +113,4 @@ for i = 1 : num_lattice_viewpoints
     end
 end
 
-save('cylinder_lattice_viewpoints_1.mat', 'lattice_viewpoints', 'lattice_los_neighbors'); 
+% save('cylinder_lattice_viewpoints_1.mat', 'lattice_viewpoints', 'lattice_los_neighbors'); 

@@ -25,7 +25,7 @@ function obj = compute_objective_inspect(control_points, faces_map, map_paramete
     if (optimization_parameters.opt_yaw)
         control_yaws = control_points(:,4);
     else
-        control_yaws = zeros(size(control_points, 1));
+        control_yaws = zeros(size(control_points, 1), 1);
         for i = 1 : size(control_points,1)
             control_yaws(i) = get_best_yaw(control_points(i,1:3), map_parameters);
         end

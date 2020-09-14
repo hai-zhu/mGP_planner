@@ -9,10 +9,11 @@ matlab_parameters.seed_num = 3;
 rng(matlab_parameters.seed_num, 'twister');
 
 % map cov initialization
-P_ini_method = 1;           % 1-identity; 2-random spd; 3-GP; 4-mGP
+P_ini_method = 3;           % 1-identity; 2-random spd; 3-GP; 4-mGP
 
 %% Environment
 model_name = 'cylinder';
+model.name = model_name;
 % mesh
 data_mesh = load([model_name, '_mesh.mat']);
 model.TR = data_mesh.TR;
@@ -43,7 +44,7 @@ switch P_ini_method
     case 1
         faces_map.P = eye(map_parameters.num_faces);	% for debugging
     case 2
-        SPDmatrix = generateSPDmatrix(map_parameters.num_faces);
+        SPDmatrix = 0.1*generateSPDmatrix(map_parameters.num_faces);
         faces_map.P = SPDmatrix;
     case 3
     case 4
@@ -174,7 +175,7 @@ while (time_elapsed < planning_parameters.time_budget)
     if (optimization_parameters.opt_yaw)
         control_yaws = path_optimized(:,4);
     else
-        control_yaws = zeros(size(path_optimized, 1));
+        control_yaws = zeros(size(path_optimized, 1), 1);
         for i = 1 : size(path_optimized,1)
             control_yaws(i) = get_best_yaw(path_optimized(i,1:3), map_parameters);
         end
@@ -191,8 +192,18 @@ while (time_elapsed < planning_parameters.time_budget)
         sample_trajectory(trajectory, 1/planning_parameters.measurement_frequency);
     [~, yaws_meas, ~, ~] = sample_trajectory(yaw_trajectory, ...
         1/planning_parameters.measurement_frequency);
+    trajectory_time = get_trajectory_total_time(trajectory);
+    
+    % Remove the viewpoints beyond budget
+    idx_in_budget = find(times_meas <= planning_parameters.time_budget-time_elapsed);
+    if length(idx_in_budget) < length(times_meas)
+        trajectory_time = planning_parameters.time_budget - time_elapsed;
+    end
+    times_meas = times_meas(idx_in_budget);
+    points_meas = points_meas(idx_in_budget,:);
+    yaws_meas = yaws_meas(idx_in_budget,:);
 
-    % Find the corresponding yaw
+    % Combine the viewpoints
     num_points_meas = size(points_meas,1);
     viewpoints_meas = [points_meas, yaws_meas];
     
@@ -228,7 +239,7 @@ while (time_elapsed < planning_parameters.time_budget)
     P_trace_prev = trace(faces_map.P);
     viewpoint_prev = [path_optimized(end,:),control_yaws(end)]; % End of trajectory (not last meas. point!)
     
-    time_elapsed = time_elapsed + get_trajectory_total_time(trajectory); 
+    time_elapsed = time_elapsed + trajectory_time; 
     disp(['Time elapsed: ', num2str(time_elapsed)]);
 
 end

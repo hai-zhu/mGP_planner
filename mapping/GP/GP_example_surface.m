@@ -7,13 +7,25 @@ clc
 
 
 %% Environment
-% map environments
-data_mesh = load('simple_cylinder_solid.mat');
+model_name = 'cylinder';
+% mesh
+data_mesh = load([model_name, '_mesh.mat']);
+model.TR = data_mesh.TR;
 TR = data_mesh.TR;
+% occupancy
+data_occupancy = load([model_name, '_map_occupancy']);
+model.occupancy = data_occupancy.occupancy; 
+% esdf
+data_esdf = load([model_name, '_map_esdf']);
+model.esdf = data_esdf.esdf; 
+% true temperature field
+data_temperature_field = load([model_name, '_temperature_field']);
+model.temperature_field = data_temperature_field.F_value;
+
 
 %% Parameters
 [map_parameters, sensor_parameters, planning_parameters, optimization_parameters, ...
-    matlab_parameters] = load_parameteres(TR);
+    matlab_parameters] = load_parameteres(model);
 
 
 %% Ground truth and initial map
@@ -22,7 +34,7 @@ dim_y_env = map_parameters.dim_y_env;
 dim_z_env = map_parameters.dim_z_env;
 ground_truth_faces_map = create_ground_truth_map(map_parameters);
 figure;
-subplot(2, 3, 1)
+subplot(2, 2, 1)
 hold on;
 axis([-3 15 -3 15 0 25]);
 xlabel('x [m]');
@@ -56,7 +68,7 @@ for i = 1 : num_measure
 end
 faces_map_measure = 0.5*ones(size(ground_truth_faces_map));
 faces_map_measure(initial_observe_idx) = ground_truth_faces_map(initial_observe_idx);
-subplot(2, 3, 2)
+subplot(2, 2, 2)
 hold on;
 axis([-3 15 -3 15 0 25]);
 xlabel('x [m]');
@@ -94,7 +106,8 @@ lik_func = @likGauss;
 inf_func = @infGaussLik;
 % initialize the hyperparameter struct
 hyp.mean = 0.5;
-hyp.cov  = [1.3 0.3];
+hyp.cov  = [1.3 0.3];           % hyp = [ log(ell)
+                                %         log(sf) ]
 hyp.lik  = 0.35;
 % optimizing hyperparameter
 N = 500;                % maximal number of function evaluations
@@ -107,7 +120,7 @@ Z = map_parameters.F_center;
 % inference
 [ymu, ys2, fmu, fs, ~ , post] = gp(hyp_opt, inf_func, mean_func, cov_func, lik_func, ...
     X_ref, Y_measure, Z);
-subplot(2,3,3);
+subplot(2,2,3);
 hold on;
 axis([-3 15 -3 15 0 25]);
 xlabel('x [m]');
@@ -120,20 +133,20 @@ trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
     TR.Points(:,3), ymu, 'EdgeAlpha', 0);
 caxis([0, 1]);
 colormap jet
-colorbar
-subplot(2,3,4);
-hold on;
-axis([-3 15 -3 15 0 25]);
-xlabel('x [m]');
-ylabel('y [m]');
-zlabel('z [m]');
-title(['Var. - prior. Trace = ', num2str(sum(ys2), 5)])
-daspect([1 1 1]);
-view(3);
-trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
-    TR.Points(:,3), ys2, 'EdgeAlpha', 0);
-var_max = max(ys2);
-caxis([0 var_max]);
+% colorbar
+% subplot(2,3,4);
+% hold on;
+% axis([-3 15 -3 15 0 25]);
+% xlabel('x [m]');
+% ylabel('y [m]');
+% zlabel('z [m]');
+% title(['Var. - prior. Trace = ', num2str(sum(ys2), 5)])
+% daspect([1 1 1]);
+% view(3);
+% trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
+%     TR.Points(:,3), ys2, 'EdgeAlpha', 0);
+% var_max = max(ys2);
+% caxis([0 var_max]);
 
 %% Calculate covariance
 faces_map_prior.m = ymu;
@@ -152,7 +165,7 @@ if Lchol    % L contains chol decomp => use Cholesky parameters (alpha,sW,L)
   if isnumeric(L), LKs = L*(Ks); else LKs = L(Ks); end    % matrix or callback
   faces_map_prior.P = Kss + Ks'*LKs;                    % predictive variances
 end
-subplot(2,3,5);
+subplot(2,2,4);
 hold on;
 axis([-3 15 -3 15 0 25]);
 xlabel('x [m]');
@@ -163,17 +176,19 @@ daspect([1 1 1]);
 view(3);
 trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
     TR.Points(:,3), diag(faces_map_prior.P), 'EdgeAlpha', 0);
+var_max = max(diag(faces_map_prior.P));
 caxis([0 var_max]);
-subplot(2,3,6);
-hold on;
-axis([-3 15 -3 15 0 25]);
-xlabel('x [m]');
-ylabel('y [m]');
-zlabel('z [m]');
-title(['Var. - prior. Trace = ', num2str(trace(Kss), 5)])
-daspect([1 1 1]);
-view(3);
-trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
-    TR.Points(:,3), diag(Kss), 'EdgeAlpha', 0);
-caxis([0 var_max]);
-colorbar
+
+% subplot(2,3,6);
+% hold on;
+% axis([-3 15 -3 15 0 25]);
+% xlabel('x [m]');
+% ylabel('y [m]');
+% zlabel('z [m]');
+% title(['Var. - prior. Trace = ', num2str(trace(Kss), 5)])
+% daspect([1 1 1]);
+% view(3);
+% trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
+%     TR.Points(:,3), diag(Kss), 'EdgeAlpha', 0);
+% caxis([0 var_max]);
+% colorbar
