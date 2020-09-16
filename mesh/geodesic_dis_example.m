@@ -15,7 +15,7 @@ vertices = TR.Points;
 faces = TR.ConnectivityList;
 mesh = geodesic_new_mesh(vertices,faces);           %initilize new mesh
 algorithm = geodesic_new_algorithm(mesh, 'exact'); 	%initialize new geodesic algorithm
-vertex_id = 1;                                      %create a single source at vertex #1
+vertex_id = 500;                                      %create a single source at vertex #1
 source_points = {geodesic_create_surface_point('vertex',vertex_id,vertices(vertex_id,:))};
 geodesic_propagate(algorithm, source_points);       %propagation stage of the algorithm (the most time-consuming)
 vertex_id = 800;                                    %create a single destination at vertex #N

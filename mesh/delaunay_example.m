@@ -6,8 +6,8 @@ clc
 %% Create Delaunay Triangulation example
 % a sphere example
 radius = 12;
-resolution_theta = deg2rad(10);
-resolution_phi = deg2rad(10);
+resolution_theta = deg2rad(30);
+resolution_phi = deg2rad(30);
 num_theta = 2*pi / resolution_theta;
 num_phi = 2*pi / resolution_phi;
 xyz_P = [];
@@ -27,6 +27,6 @@ for i_theta = 1 : num_theta
     end
 end
 DT_sphere = delaunayTriangulation(xyz_P);
-trimesh(DT_sphere, xyz_P(:,1), xyz_P(:,2), xyz_P(:,3))
+tetramesh(DT_sphere,'FaceAlpha',0.3);
 
 
