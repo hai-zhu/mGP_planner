@@ -6,7 +6,7 @@ clc
 
 
 %% Load mesh file
-model_name = 'cylinder';       % cylinder, boeing747
+model_name = 'ucylinder';       % cylinder, boeing747, ucylinder
 data_mesh = load([model_name, '_mesh.mat']);
 model.TR = data_mesh.TR;
 TR = data_mesh.TR;
@@ -24,8 +24,8 @@ mesh = mesh_preporcessing(TR);
 
 %% Monte Carlo sampling
 dt = 1;
-speed = 0.2;
-T = 100;
+speed = 0.4;
+T = 50;
 N = 10000;
 heat_kernel = zeros(mesh.numF, mesh.numF, T);
 % loop for each faceId
@@ -42,7 +42,7 @@ for iF = 1 : mesh.numF
     % sampling
     particle_all = repmat(particle, [N, 1]);
     particle_end_all = particle_all;
-    for iS = 1 : N
+    parfor iS = 1 : N
         [particle_i, path_i, faceID_path_i] = particle_move_multiple_steps(particle_all(iS), mesh, dt, speed, T);
         particle_end_all(iS) = particle_i;
         path_all(:, :, iS) = path_i;
@@ -61,3 +61,5 @@ for iF = 1 : mesh.numF
     % merge to current one
     heat_kernel(iF, :, :) = heat_kernel_s0;
 end
+
+% save([model_name, '_heat_kernel.mat'], 'heat_kernel');

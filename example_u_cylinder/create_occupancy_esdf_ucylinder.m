@@ -1,22 +1,20 @@
-% clear all
-% clear 
+% close all 
+clear all
+clear 
 
 % map environments
-model_name = 'boeing747';               % cylinder, boeing747
+model_name = 'ucylinder';
 data_mesh = load([model_name, '_mesh.mat']);  
 TR = data_mesh.TR;
 
 FV.faces = TR.ConnectivityList;
 FV.vertices = TR.Points;
 resolution = 0.5;
-% dim_x_env = [-8, 20];
-% dim_y_env = [-8, 20];
-% dim_z_env = [2, 30];
-dim_x_env = [-8 80];
-dim_y_env = [-6 70];
-dim_z_env = [16 48];
-% [occupancy, esdf] = mesh_to_occupancy_esdf(FV, dim_x_env, dim_y_env, dim_z_env, ...
-%     resolution);
+dim_x_env = [-8 26];
+dim_y_env = [-8 16];
+dim_z_env = [2 28];
+[occupancy, esdf] = mesh_to_occupancy_esdf(FV, dim_x_env, dim_y_env, dim_z_env, ...
+    resolution);
 
 % visualization for test
 fig_main = figure;

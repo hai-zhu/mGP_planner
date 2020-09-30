@@ -6,7 +6,7 @@ clc
 
 
 %% Load mesh file
-model_name = 'cylinder';       % cylinder, boeing747
+model_name = 'ucylinder';       % cylinder, boeing747, ucylinder
 data_mesh = load([model_name, '_mesh.mat']);
 model.TR = data_mesh.TR;
 TR = data_mesh.TR;
@@ -30,9 +30,9 @@ s0_faceId = 340;
 
 %% Monte Carlo sampling
 dt = 1;
-speed = 0.2;
-T = 100;
-N = 1000;
+speed = 0.4;
+T = 50;
+N = 10000;
 path_all = zeros(3, ceil(T/dt)+1, N);          % record paths of all samples
 faceID_path_all = zeros(1, ceil(T/dt)+1, N);
 % initialize particles

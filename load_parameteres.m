@@ -8,24 +8,35 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     sensor_parameters.cam_roll = 0;
     sensor_parameters.cam_pitch = deg2rad(15);
     sensor_parameters.cam_yaw = 0;
-    sensor_parameters.fov_x = deg2rad(60);
-    sensor_parameters.fov_y = deg2rad(60);
+    sensor_parameters.fov_x = deg2rad(50);
+    sensor_parameters.fov_y = deg2rad(50);
     sensor_parameters.fov_range_min = 2;
-    sensor_parameters.fov_range_max = 8;
-    sensor_parameters.incidence_range_min = cos(deg2rad(70));
+    sensor_parameters.fov_range_max = 6;
+    sensor_parameters.incidence_range_min = cos(deg2rad(60));
     sensor_parameters.sensor_coeff_A = 0.05;
     sensor_parameters.sensor_coeff_B = 0.2;
     
     %% map parameters
     % dimension
-    map_parameters.center_pos = [6; 6; 11];     % object center
-    map_parameters.dim_x_env = [-8, 20];
-    map_parameters.dim_y_env = [-8, 20];
-    map_parameters.dim_z_env = [2, 30];
-    if strcmp(model.name, 'boeing747')
+    map_parameters.model_name = model.name;
+    if strcmp(model.name, 'cylinder')
+        map_parameters.dim_x_env = [-8, 20];
+        map_parameters.dim_y_env = [-8, 20];
+        map_parameters.dim_z_env = [2, 30];
+        map_parameters.center_pos = [6; 6; 11];
+    elseif strcmp(model.name, 'boeing747')
         map_parameters.dim_x_env = [-8 80];
         map_parameters.dim_y_env = [-6 70];
         map_parameters.dim_z_env = [16 48];
+        map_parameters.center_pos = [36; 32; 32];
+    elseif strcmp(model.name, 'ucylinder')
+        map_parameters.dim_x_env = [-8 26];
+        map_parameters.dim_y_env = [-8 16];
+        map_parameters.dim_z_env = [2 28];
+        map_parameters.center_pos = [4; 4; 11];
+        map_parameters.center_pos_2 = [14; 4; 11];
+    else
+        error('Model name not determined!');
     end
     % mesh triangulation
     TR = model.TR;
@@ -35,7 +46,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     if strcmp(model.name, 'boeing747')
         dir = -1;
     end
-    map_parameters.F_normal = dir*faceNormal(TR);      % minus for boeing 747
+    map_parameters.F_normal = dir*faceNormal(TR);      % minus (flip) for boeing 747
     map_parameters.F_center = incenter(TR);
     map_parameters.F_points = zeros(map_parameters.num_faces, 3, 3);
     for iFace = 1 : map_parameters.num_faces
@@ -48,22 +59,27 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     map_parameters.occupancy = model.occupancy;    
     % compute the esdf
     map_parameters.esdf = model.esdf; 
-    if strcmp(model.name, 'boeing747')
+    if strcmp(model.name, 'boeing747')          % flip for boeing747
         map_parameters.occupancy = ~map_parameters.occupancy;
         map_parameters.esdf = -map_parameters.esdf;
     end
     % load the temperature field
     map_parameters.temperature_field = model.temperature_field;
-    % kenel function parameters
-    map_parameters.sigma_f = exp(0.3);  % 0.01, 0.3, 0.6
-    map_parameters.l = exp(1.3); % 0.2, 1.3, 2.0
     % max range for lattice search
     map_parameters.lattice_range = 12;
+    % kernel choice
+    map_parameters.kernel_choice = 4;   % 0-I; 1-Random SPD; 2-Matern; 3-SE; 4-Heat
+    % matern kenel function parameters
+    map_parameters.sigma_f = exp(0.3);  % 0.01, 0.3, 0.6
+    map_parameters.l = exp(1.3); % 0.2, 1.3, 2.0
+    % heat kernel parameters
+    map_parameters.sigma_h = 2.0;
+    map_parameters.diff_f = 30;
     
     %% trajectory planning parameters
     planning_parameters.safe_radius = 0.6;      % safe radius, [m]
-    planning_parameters.max_vel = 4;            % [m/s]
-    planning_parameters.max_acc = 3;            % [m/s^2]
+    planning_parameters.max_vel = 3;            % [m/s]
+    planning_parameters.max_acc = 2;            % [m/s^2]
     planning_parameters.max_yaw_rate = deg2rad(90); % [rad/s]
     planning_parameters.time_budget = 360;
     planning_parameters.lambda = 0.001;         % parameter to control 
@@ -87,7 +103,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     %% matlab parameters
     matlab_parameters.visualize_map = 1;
     matlab_parameters.visualize_path = 1;
-    matlab_parameters.visualize_cam = 0;
+    matlab_parameters.visualize_cam = 1;
 
     disp('Parameters loaded!');
     

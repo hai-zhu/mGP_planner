@@ -8,7 +8,8 @@ function [occupancy, esdf] = mesh_to_occupancy_esdf(FV, dim_x_env, dim_y_env, di
     occupancy = false(dim_x, dim_y, dim_z);
     esdf = zeros(dim_x, dim_y, dim_z);
     
-    parfor i = 1 : dim_x
+    % parfor
+    for i = 1 : dim_x
         x = dim_x_env(1) + (i-0.5)*resolution;
         for j = 1 : dim_y
             y = dim_y_env(1) + (j-0.5)*resolution;

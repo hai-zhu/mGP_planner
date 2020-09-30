@@ -27,9 +27,13 @@ function flag = if_in_los(p1, p2, map_parameters)
         p_val = p1 + i*sample_step*p12_vec_unit;
         % validate the distance
         idx = floor((resolution+p_val-dim_env_lower)/resolution);
-        dis = esdf(idx(1),idx(2),idx(3));
-        if dis <= 0
-            flag = 0;
+        try 
+            dis = esdf(idx(1),idx(2),idx(3));
+            if dis <= 0
+                flag = 0;
+            end
+        catch
+            flag = 1;
         end
     end
 

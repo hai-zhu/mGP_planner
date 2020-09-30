@@ -3,3 +3,5 @@ external/
 .Rproj.user
 
 logs/
+
+example_u_cylinder/model/ucylinder_heat_kernel.mat
