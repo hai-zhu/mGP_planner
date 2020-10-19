@@ -11,7 +11,7 @@ clc
 % hoa_hakanaia, plane_simple_1, simple_cylinder_solid
 % [TR, fileformat, attributes, solidID] = ...
 %     stlread('simple_cylinder_solid.stl'); 
-model_name = 'ucylinder';       % cylinder, boeing747, ucylinder
+model_name = 'cylinder';       % cylinder, boeing747, ucylinder
 data_mesh = load([model_name, '_mesh.mat']);
 model.TR = data_mesh.TR;
 TR = data_mesh.TR;
@@ -29,9 +29,9 @@ mesh = mesh_preporcessing(TR);
 
 %% Simulating a particle
 % parameter settings
-T = 50;
+T = 100;
 dt = 1;
-speed = 0.4;
+speed = 0.25;
 time_elapsed = 0;
 % particle initial state
 particle.local_r = [0.3; 0.3];                      % 2x1

@@ -6,7 +6,7 @@ clc
 
 
 %% Load mesh file
-model_name = 'ucylinder';       % cylinder, boeing747, ucylinder
+model_name = 'cylinder';       % cylinder, boeing747, ucylinder
 data_mesh = load([model_name, '_mesh.mat']);
 model.TR = data_mesh.TR;
 TR = data_mesh.TR;
@@ -23,13 +23,14 @@ mesh = mesh_preporcessing(TR);
 
 
 %% Monte Carlo sampling
+test_numF = mesh.numF;
 dt = 1;
-speed = 0.4;
-T = 50;
-N = 10000;
-heat_kernel = zeros(mesh.numF, mesh.numF, T);
+speed = 0.25;
+T = 100;
+N = 100000;
+heat_kernel = zeros(test_numF, test_numF, T);
 % loop for each faceId
-for iF = 1 : mesh.numF
+for iF = 1 : test_numF
     s0_faceId = iF;
     path_all = zeros(3, ceil(T/dt)+1, N);          % record paths of all samples
     faceID_path_all = zeros(1, ceil(T/dt)+1, N);
@@ -49,10 +50,10 @@ for iF = 1 : mesh.numF
         faceID_path_all(:, :, iS) = faceID_path_i;
     end
     % construct current kernel
-    heat_kernel_s0 = zeros(mesh.numF, T);
+    heat_kernel_s0 = zeros(test_numF, T);
     for t = 1 : T
         faceId_t_all = reshape(faceID_path_all(:, t, :), [1, N]);   % 1xN
-        for j = 1 : mesh.numF
+        for j = 1 : test_numF
             % by accumulating those pos_t in the i face
             heat_kernel_s0(j, t) = (1/mesh.F_area(1, j)) ...
                 * length(find(faceId_t_all == j))/N;
