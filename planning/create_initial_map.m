@@ -42,9 +42,15 @@ function faces_map = create_initial_map(map_parameters)
                 'Writable', false);
             heat_kernel = heat_kernel_obj.heat_kernel(:, :, map_parameters.diff_f); % num_faces x num_faces
             % it should be symmetric
-            heat_kernel = 0.5 * (heat_kernel + heat_kernel');
+%             heat_kernel = 0.5 * (heat_kernel + heat_kernel');
             faces_map.P = map_parameters.sigma_h^2 .* heat_kernel;
         otherwise
             error('Kernel function not determined!');
     end
+    
+    % P should be semi-positive definite
+    if min(eig(faces_map.P)) < 0
+        error('Initial covariance matrix not semi-positive definite!');
+    end
+    
 end

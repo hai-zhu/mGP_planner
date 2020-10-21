@@ -8,11 +8,11 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     sensor_parameters.cam_roll = 0;
     sensor_parameters.cam_pitch = deg2rad(15);
     sensor_parameters.cam_yaw = 0;
-    sensor_parameters.fov_x = deg2rad(50);
-    sensor_parameters.fov_y = deg2rad(50);
+    sensor_parameters.fov_x = deg2rad(60);
+    sensor_parameters.fov_y = deg2rad(60);
     sensor_parameters.fov_range_min = 2;
-    sensor_parameters.fov_range_max = 6;
-    sensor_parameters.incidence_range_min = cos(deg2rad(60));
+    sensor_parameters.fov_range_max = 8;
+    sensor_parameters.incidence_range_min = cos(deg2rad(70));
     sensor_parameters.sensor_coeff_A = 0.05;
     sensor_parameters.sensor_coeff_B = 0.2;
     
@@ -73,15 +73,15 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     map_parameters.sigma_f = exp(0.3);  % 0.01, 0.3, 0.6
     map_parameters.l = exp(1.3); % 0.2, 1.3, 2.0
     % heat kernel parameters
-    map_parameters.sigma_h = 2.0;
-    map_parameters.diff_f = 30;
+    map_parameters.sigma_h = 4.0;
+    map_parameters.diff_f = 24;
     
     %% trajectory planning parameters
     planning_parameters.safe_radius = 0.6;      % safe radius, [m]
-    planning_parameters.max_vel = 3;            % [m/s]
-    planning_parameters.max_acc = 2;            % [m/s^2]
+    planning_parameters.max_vel = 4;            % [m/s]
+    planning_parameters.max_acc = 3;            % [m/s^2]
     planning_parameters.max_yaw_rate = deg2rad(90); % [rad/s]
-    planning_parameters.time_budget = 360;
+    planning_parameters.time_budget = 160;
     planning_parameters.lambda = 0.001;         % parameter to control 
                                                 % exploration-exploitation 
                                                 % trade-off in objective

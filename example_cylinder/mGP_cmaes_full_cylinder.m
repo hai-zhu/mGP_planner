@@ -8,8 +8,6 @@ clc
 matlab_parameters.seed_num = 3;
 rng(matlab_parameters.seed_num, 'twister');
 
-% map cov initialization
-P_ini_method = 3;           % 1-identity; 2-random spd; 3-GP; 4-mGP
 
 %% Environment
 model_name = 'cylinder';
@@ -38,18 +36,9 @@ model.temperature_field = data_temperature_field.F_value;
 dim_x_env = map_parameters.dim_x_env;
 dim_y_env = map_parameters.dim_y_env;
 dim_z_env = map_parameters.dim_z_env;
+dim_xyz_plot = [dim_x_env, dim_y_env, 0, dim_z_env(2)];
 ground_truth_faces_map = create_ground_truth_map(map_parameters);
 faces_map = create_initial_map(map_parameters);
-switch P_ini_method
-    case 1
-        faces_map.P = eye(map_parameters.num_faces);	% for debugging
-    case 2
-        SPDmatrix = 0.1*generateSPDmatrix(map_parameters.num_faces);
-        faces_map.P = SPDmatrix;
-    case 3
-    case 4
-    otherwise
-end
 P_prior = diag(faces_map.P);
 
 if (matlab_parameters.visualize_map)
@@ -314,7 +303,7 @@ if (matlab_parameters.visualize_path)
             [F_visible, faces_visible] = get_visible_faces(map_parameters.num_faces, ...
                 map_parameters.F_points, map_parameters.F_center, ...
                 map_parameters.F_normal, cam_pos, cam_roll, cam_pitch, cam_yaw, sensor_parameters);
-            for iFace = 1 : num_faces
+            for iFace = 1 : map_parameters.num_faces
                 if F_visible(iFace) == 1
                     patch(ax_path, 'XData', map_parameters.F_points(iFace, 1, :), ...
                           'YData', map_parameters.F_points(iFace, 2, :), ...

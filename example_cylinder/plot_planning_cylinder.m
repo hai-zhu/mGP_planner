@@ -25,20 +25,22 @@ model.esdf = data_esdf.esdf;
 data_temperature_field = load([model_name, '_temperature_field']);
 model.temperature_field = data_temperature_field.F_value;
 
+
 %% Parameters
 [map_parameters, sensor_parameters, planning_parameters, optimization_parameters, ...
     matlab_parameters] = load_parameteres(model);
 
+
 %% Planning results
-results_name = 'gp_smdm_01';
+results_name = 'cylinder_matern_full';
 
 %% Ground truth and initial map
 dim_x_env = map_parameters.dim_x_env;
 dim_y_env = map_parameters.dim_y_env;
 dim_z_env = map_parameters.dim_z_env;
+dim_xyz_plot = [dim_x_env, dim_y_env, 0, dim_z_env(2)];
 ground_truth_faces_map = create_ground_truth_map(map_parameters);
 faces_map = create_initial_map(map_parameters);
-% faces_map.P = eye(num_faces);       % for debugging
 P_prior = diag(faces_map.P);
 
 if (matlab_parameters.visualize_map)
@@ -217,4 +219,4 @@ if (matlab_parameters.visualize_path)
 end
 
 %% Quantantive results
-
+plot_metrics(metrics);
