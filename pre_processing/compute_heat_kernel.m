@@ -4,6 +4,7 @@ close all
 clear 
 clc 
 
+root_folder = pwd;
 
 %% Load mesh file
 model_name = 'cylinder';       % cylinder, boeing747, ucylinder
@@ -63,4 +64,5 @@ for iF = 1 : test_numF
     heat_kernel(iF, :, :) = heat_kernel_s0;
 end
 
-% save([model_name, '_heat_kernel.mat'], 'heat_kernel');
+save([root_folder, '/surface_resources/cylinder/model/', ...
+    model_name, '_heat_kernel.mat'], 'heat_kernel');
