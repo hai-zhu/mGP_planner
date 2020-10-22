@@ -1,11 +1,7 @@
 
 external/
-.Rproj.user
 
 logs/
 
-example_u_cylinder/model/ucylinder_heat_kernel.mat
 
-example_cylinder/model/cylinder_heat_kernel.mat
-
-example_cylinder/results/
+surface_resources/cylinder/model/cylinder_heat_kernel.mat
