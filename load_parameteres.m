@@ -80,7 +80,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     planning_parameters.safe_radius = 0.6;      % safe radius, [m]
     planning_parameters.max_vel = 4;            % [m/s]
     planning_parameters.max_acc = 3;            % [m/s^2]
-    planning_parameters.plan_yaw = 0;           % if also plan yaw
+    planning_parameters.plan_yaw = 0;           % if also plan yaw polynomial trajectory
     planning_parameters.max_yaw_rate = deg2rad(90); % [rad/s]
     planning_parameters.time_budget = 180;
     planning_parameters.lambda = 0.001;         % parameter to control 
@@ -88,7 +88,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
                                                 % trade-off in objective
     planning_parameters.measurement_frequency = 0.2;
     planning_parameters.use_threshold = 1;
-    planning_parameters.lower_threshold = 0.4;
+    planning_parameters.lower_threshold = 0.0;
     planning_parameters.obj = 'rate';    % 'rate'/'exponential'
     planning_parameters.control_points = 4;
     
