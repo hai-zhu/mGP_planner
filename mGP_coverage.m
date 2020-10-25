@@ -90,7 +90,7 @@ end
 
 
 %% Take first measurement
-viewpoint_init = [16, 6, 4, -pi]; % [0, 0, 4, deg2rad(45)];
+viewpoint_init = [16, 6, 4, -pi];
 % comment if not taking a first measurement
 faces_map = take_measurement_at_viewpoint(viewpoint_init, faces_map, ...
         ground_truth_faces_map, map_parameters, sensor_parameters);
@@ -130,114 +130,77 @@ if (matlab_parameters.visualize_map)
 end
 
 
-%% Lattice viewpoints
-data_lattice = load([model_name, '_lattice_viewpoints.mat']);
-lattice_viewpoints = data_lattice.lattice_viewpoints;
-num_lattice_viewpoints = size(lattice_viewpoints, 1);
+%% Coverage path
+data_coverage_path = load([model_name, '_coverage_path.mat']);
+coverage_path = data_coverage_path.coverage_path;
 
 
-%% Planning-Execution:
-P_trace_prev = P_trace_init;
-viewpoint_prev = viewpoint_init;
-time_elapsed = 0;
+%% Execution
 metrics = initialize_metrics_inspect();
 
-while (time_elapsed < planning_parameters.time_budget)
+% Create polynomial path through the control points.
+trajectory = plan_path_waypoints(coverage_path(:,1:3), ...
+        planning_parameters.max_vel, planning_parameters.max_acc);
+    
+% Read control yaws
+control_yaws = coverage_path(:, 4);
 
-    %% Step 1. Grid search on the lattice viewpoints
-    path = search_lattice_viewpoints(viewpoint_prev, lattice_viewpoints, ...
-        faces_map, map_parameters, sensor_parameters, planning_parameters);
-    obj = compute_objective_inspect(path, faces_map, map_parameters, sensor_parameters, ...
-        planning_parameters, optimization_parameters);
-    disp(['Objective before optimization: ', num2str(obj)]);
-
-    %% STEP 2. CMA-ES optimization, only optimize position now.
-    path_optimized = optimize_with_cmaes_inspect(path, faces_map, map_parameters, ...
-        sensor_parameters, planning_parameters, optimization_parameters);
-    
-    %% Plan Execution %%   
-    % Create polynomial path through the control points.
-    trajectory = plan_path_waypoints(path_optimized(:,1:3), ...
-            planning_parameters.max_vel, planning_parameters.max_acc);
-    % Find best yaw for each control point if not optimizing
-    if (optimization_parameters.opt_yaw)
-        control_yaws = path_optimized(:,4);
-    else
-        control_yaws = zeros(size(path_optimized, 1), 1);
-        for i = 1 : size(path_optimized,1)
-            control_yaws(i) = get_best_yaw(path_optimized(i,1:3), map_parameters);
-        end
-    end 
-    % Also create the yaw trajectory
-    segment_time = zeros(trajectory.num_elements, 1);
-    for i = 2 : trajectory.num_elements
-        segment_time(i) = trajectory.segments(i-1).time;
-    end
-    yaw_trajectory = plan_yaw_waypoints(control_yaws, segment_time);
-
-    % Sample trajectory to find locations to take measurements at.
-    [times_meas, points_meas, ~, ~] = ...
-        sample_trajectory(trajectory, 1/planning_parameters.measurement_frequency);
-    [~, yaws_meas, ~, ~] = sample_trajectory(yaw_trajectory, ...
-        1/planning_parameters.measurement_frequency);
-    trajectory_time = get_trajectory_total_time(trajectory);
-    
-    % Alternatively, spercify a yaw to the measurement point
-    if planning_parameters.plan_yaw == 0
-        for i = 1 : size(points_meas,1)
-            yaws_meas(i) = get_best_yaw(points_meas(i,1:3), map_parameters);
-        end
-    end
-    
-    % Remove the viewpoints beyond budget
-    idx_in_budget = find(times_meas <= planning_parameters.time_budget-time_elapsed);
-    if length(idx_in_budget) < length(times_meas)
-        trajectory_time = planning_parameters.time_budget - time_elapsed;
-    end
-    times_meas = times_meas(idx_in_budget);
-    points_meas = points_meas(idx_in_budget,:);
-    yaws_meas = yaws_meas(idx_in_budget,:);
-
-    % Combine the viewpoints
-    num_points_meas = size(points_meas,1);
-    viewpoints_meas = [points_meas, yaws_meas];
-    
-    % Take measurements along path.
-    for i = 1:num_points_meas
-        faces_map = take_measurement_at_viewpoint(viewpoints_meas(i,:), faces_map, ...
-                ground_truth_faces_map, map_parameters, sensor_parameters);
-        metrics.faces_map_m = [metrics.faces_map_m; faces_map.m'];
-        metrics.faces_map_P_diag = [metrics.faces_map_P_diag; diag(faces_map.P)'];
-        metrics.P_traces = [metrics.P_traces; trace(faces_map.P)];
-        metrics.rmses = [metrics.rmses; compute_rmse(faces_map.m, ground_truth_faces_map)];
-        metrics.wrmses = [metrics.wrmses; compute_wrmse(faces_map.m, ground_truth_faces_map)];
-        metrics.mlls = [metrics.mlls; compute_mll(faces_map, ground_truth_faces_map)];
-        metrics.wmlls = [metrics.wmlls; compute_wmll(faces_map, ground_truth_faces_map)];
-    end
-
-    disp(['Trace after execution: ', num2str(trace(faces_map.P))]);
-    disp(['Time after execution: ', num2str(get_trajectory_total_time(trajectory))]);
-    gain = P_trace_init - trace(faces_map.P);
-    if (strcmp(planning_parameters.obj, 'rate'))
-        cost = max(get_trajectory_total_time(trajectory), 1/planning_parameters.measurement_frequency);
-        disp(['Objective after optimization: ', num2str(-gain/cost)]);
-    elseif (strcmp(planning_parameters.obj, 'exponential'))
-        cost = get_trajectory_total_time(trajectory);
-        disp(['Objective after optimization: ', num2str(-gain*exp(-planning_parameters.lambda*cost))]);
-    end
-    
-    metrics.viewpoints_meas = [metrics.viewpoints_meas; viewpoints_meas];
-    metrics.times = [metrics.times; time_elapsed + times_meas'];
-    metrics.path_travelled = [metrics.path_travelled; path_optimized];
-    metrics.trajectory_travelled = [metrics.trajectory_travelled; trajectory];
-    
-    P_trace_prev = trace(faces_map.P);
-    viewpoint_prev = [path_optimized(end,:),control_yaws(end)]; % End of trajectory (not last meas. point!)
-    
-    time_elapsed = time_elapsed + trajectory_time; 
-    disp(['Time elapsed: ', num2str(time_elapsed)]);
-
+% Also create the yaw trajectory
+segment_time = zeros(trajectory.num_elements, 1);
+for i = 2 : trajectory.num_elements
+    segment_time(i) = trajectory.segments(i-1).time;
 end
+yaw_trajectory = plan_yaw_waypoints(control_yaws, segment_time);
+
+% Sample trajectory to find locations to take measurements at.
+[times_meas, points_meas, ~, ~] = ...
+    sample_trajectory(trajectory, 1/planning_parameters.measurement_frequency);
+[~, yaws_meas, ~, ~] = sample_trajectory(yaw_trajectory, ...
+    1/planning_parameters.measurement_frequency);
+trajectory_time = get_trajectory_total_time(trajectory);
+
+% Alternatively, spercify a yaw to the measurement point
+if planning_parameters.plan_yaw == 0
+    for i = 1 : size(points_meas,1)
+        yaws_meas(i) = get_best_yaw(points_meas(i,1:3), map_parameters);
+    end
+end
+
+% Combine the viewpoints
+num_points_meas = size(points_meas,1);
+viewpoints_meas = [points_meas, yaws_meas];
+
+% Take measurements along path.
+for i = 1:num_points_meas
+    faces_map = take_measurement_at_viewpoint(viewpoints_meas(i,:), faces_map, ...
+            ground_truth_faces_map, map_parameters, sensor_parameters);
+    metrics.faces_map_m = [metrics.faces_map_m; faces_map.m'];
+    metrics.faces_map_P_diag = [metrics.faces_map_P_diag; diag(faces_map.P)'];
+    metrics.P_traces = [metrics.P_traces; trace(faces_map.P)];
+    metrics.rmses = [metrics.rmses; compute_rmse(faces_map.m, ground_truth_faces_map)];
+    metrics.wrmses = [metrics.wrmses; compute_wrmse(faces_map.m, ground_truth_faces_map)];
+    metrics.mlls = [metrics.mlls; compute_mll(faces_map, ground_truth_faces_map)];
+    metrics.wmlls = [metrics.wmlls; compute_wmll(faces_map, ground_truth_faces_map)];
+end
+
+disp(['Trace after execution: ', num2str(trace(faces_map.P))]);
+disp(['Time after execution: ', num2str(get_trajectory_total_time(trajectory))]);
+gain = P_trace_init - trace(faces_map.P);
+if (strcmp(planning_parameters.obj, 'rate'))
+    cost = max(get_trajectory_total_time(trajectory), 1/planning_parameters.measurement_frequency);
+    disp(['Objective after optimization: ', num2str(-gain/cost)]);
+elseif (strcmp(planning_parameters.obj, 'exponential'))
+    cost = get_trajectory_total_time(trajectory);
+    disp(['Objective after optimization: ', num2str(-gain*exp(-planning_parameters.lambda*cost))]);
+end
+
+metrics.viewpoints_meas = [metrics.viewpoints_meas; viewpoints_meas];
+metrics.times = [metrics.times; times_meas'];
+metrics.path_travelled = [metrics.path_travelled; coverage_path];
+metrics.trajectory_travelled = [metrics.trajectory_travelled; trajectory];
+
+disp(['Time elapsed: ', num2str(times_meas)]);
+
 
 if (matlab_parameters.visualize_map)
     
@@ -328,5 +291,5 @@ end
 figure;
 plot_metrics(metrics);
 
-save([root_folder, '/logs/cylinder/', model_name, '_cmaes_', 'kernel_', ...
-    num2str(map_parameters.kernel_choice), 'metrics.mat'], 'metrics'); 
+save([root_folder, '/logs/cylinder/', model_name, '_coverage_', 'kernel_', ...
+    num2str(map_parameters.kernel_choice), 'metrics.mat'], 'metrics');

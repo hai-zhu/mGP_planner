@@ -17,27 +17,40 @@ global geodesic_library;
 geodesic_library = 'geodesic_debug';                %"release" is faster and "debug" does additional checks
 vertices = TR.Points;
 faces = TR.ConnectivityList;
+num_vertices = size(TR.Points, 1);
 num_faces = size(TR.ConnectivityList, 1);
 mesh = geodesic_new_mesh(vertices,faces);           %initilize new mesh
 algorithm = geodesic_new_algorithm(mesh, 'exact'); 	%initialize new geodesic algorithm
 
 
 %% computation for each loop
-geo_dis_mtx = zeros(num_faces, num_faces);
-for i = 1 : 1
-    for j = i+1 : num_faces
-        vertex_i = faces(i, 1);
-        vertex_j = faces(j, 1);         % both choose the first vertex of the face
-        source_points = {geodesic_create_surface_point('vertex',vertex_i,vertices(vertex_i,:))};
-        geodesic_propagate(algorithm, source_points);
-        destination = geodesic_create_surface_point('vertex',vertex_j,vertices(vertex_j,:));
-        path = geodesic_trace_back(algorithm, destination);	
-        [x,y,z] = extract_coordinates_from_path(path);
-        path_length = sum(sqrt(diff(x).^2 + diff(y).^2 + diff(z).^2));	% length of the path
-        geo_dis_mtx(i, j) = path_length;
-        geo_dis_mtx(j, i) = path_length;
+% geodesic distance between each pair of vertices
+vertice_geo_dis_mtx = zeros(num_vertices, num_vertices);
+for i = 511 : -1 : 411
+    for j = i-1 : -1 : 1
+        try
+            vertex_i = i;
+            vertex_j = j;         % both choose the first vertex of the face
+            source_points = {geodesic_create_surface_point('vertex',vertex_i,vertices(vertex_i,:))};
+            geodesic_propagate(algorithm, source_points);
+            destination = geodesic_create_surface_point('vertex',vertex_j,vertices(vertex_j,:));
+            path = geodesic_trace_back(algorithm, destination);	
+            [x,y,z] = extract_coordinates_from_path(path);
+            path_length = sum(sqrt(diff(x).^2 + diff(y).^2 + diff(z).^2));	% length of the path
+            vertice_geo_dis_mtx(i, j) = path_length;
+            vertice_geo_dis_mtx(j, i) = path_length;
+        catch
+            warning('Strang problem encountered!');
+            vertice_geo_dis_mtx(i, j) = 1E4;
+            vertice_geo_dis_mtx(j, i) = 1E4;
+        end
     end
+    fprintf('i = %d, %.2f %% finished. Please wait... \n', ...
+        i, 100-100*i/num_vertices);
 end
+
+% further compute geodesic distance between each pair of faces
+
 save([root_folder, '/surface_resources/cylinder/model/', ...
-    model_name, '_geo_distance.mat'], 'geo_dis_mtx');
+    model_name, '_vertice_geo_distance_511_411.mat'], 'vertice_geo_dis_mtx');
 

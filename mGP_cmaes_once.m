@@ -88,7 +88,7 @@ end
 
 
 %% Take first measurement
-viewpoint_init = [0, 0, 4, deg2rad(45)];
+viewpoint_init = [16, 6, 4, -pi];
 faces_map = take_measurement_at_viewpoint(viewpoint_init, faces_map, ...
         ground_truth_faces_map, map_parameters, sensor_parameters);
 P_post = diag(faces_map.P);
@@ -177,6 +177,13 @@ yaw_trajectory = plan_yaw_waypoints(control_yaws, segment_time);
     sample_trajectory(trajectory, 1/planning_parameters.measurement_frequency);
 [~, measurement_yaws, ~, ~] = sample_trajectory(yaw_trajectory, ...
     1/planning_parameters.measurement_frequency);
+
+% Alternatively, spercify a yaw to the measurement point
+if planning_parameters.plan_yaw == 0
+    for i = 1 : size(measurement_points,1)
+        measurement_yaws(i) = get_best_yaw(measurement_points(i,1:3), map_parameters);
+    end
+end
 
 % Find the corresponding yaw
 num_points_meas = size(measurement_points,1);
