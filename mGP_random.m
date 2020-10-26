@@ -307,4 +307,4 @@ figure;
 plot_metrics(metrics);
 
 save([root_folder, '/logs/cylinder/', model_name, '_random_', 'kernel_', ...
-    num2str(map_parameters.kernel_choice), 'metrics.mat'], 'metrics'); 
+    num2str(map_parameters.kernel_choice), '_metrics.mat'], 'metrics'); 

@@ -44,13 +44,27 @@ function faces_map = create_initial_map(map_parameters)
             % it should be symmetric
 %             heat_kernel = 0.5 * (heat_kernel + heat_kernel');
             faces_map.P = map_parameters.sigma_h^2 .* heat_kernel;
+        case 5      % Geo Matern
+            disp('Covariance initialization: Geodesic Matern kernel');
+            data_face_geo_dis = load([map_parameters.model_name, '_face_geo_distance.mat']);
+            face_geo_dis_mtx = data_face_geo_dis.face_geo_dis_mtx;
+            for i = 1 : map_parameters.num_faces
+                for j = i : map_parameters.num_faces
+                    d_ij = face_geo_dis_mtx(i, j);
+                    k_ij = cov_materniso_3(d_ij, map_parameters.sigma_f, map_parameters.l);
+                    faces_map.P(i, j) = k_ij;
+                    faces_map.P(j, i) = k_ij;
+                end
+            end
         otherwise
             error('Kernel function not determined!');
     end
     
     % P should be semi-positive definite
     if min(eig(faces_map.P)) < 0
-        error('Initial covariance matrix not semi-positive definite!');
+        warning('Initial covariance matrix not semi-positive definite!');
+        % make it positive definite
+        faces_map.P = nearestSPD(faces_map.P);
     end
     
 end
