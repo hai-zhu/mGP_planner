@@ -15,10 +15,10 @@ vertices = TR.Points;
 faces = TR.ConnectivityList;
 mesh = geodesic_new_mesh(vertices,faces);           %initilize new mesh
 algorithm = geodesic_new_algorithm(mesh, 'exact'); 	%initialize new geodesic algorithm
-vertex_i = 318;                                      %create a single source at vertex #1
+vertex_i = 1;                                      %create a single source at vertex #1
 source_points = {geodesic_create_surface_point('vertex',vertex_i,vertices(vertex_i,:))};
 geodesic_propagate(algorithm, source_points);       %propagation stage of the algorithm (the most time-consuming)
-vertex_j = 226;                                    %create a single destination at vertex #N
+vertex_j = 1097;                                    %create a single destination at vertex #N
 destination = geodesic_create_surface_point('vertex',vertex_j,vertices(vertex_j,:));
 path = geodesic_trace_back(algorithm, destination);	%find a shortest path from source to destination
 [x,y,z] = extract_coordinates_from_path(path);

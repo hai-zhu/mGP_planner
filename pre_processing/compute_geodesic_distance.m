@@ -24,10 +24,13 @@ algorithm = geodesic_new_algorithm(mesh, 'exact'); 	%initialize new geodesic alg
 
 
 %% computation for each loop
+% create an io file
+% geo_dis_mtx_obj = matfile([root_folder, '/surface_resources/cylinder/model/', ...
+%     model_name, '_vertice_geo_distance.mat'], 'Writable', true);
 % geodesic distance between each pair of vertices
 vertice_geo_dis_mtx = zeros(num_vertices, num_vertices);
-for i = 1 : 1 : num_faces
-    for j = i+1 : 1 : num_faces
+for i = 1 : 1 : 10
+    for j = i+1 : 1 : 10
         try
             vertex_i = i;
             vertex_j = j;         % both choose the first vertex of the face
