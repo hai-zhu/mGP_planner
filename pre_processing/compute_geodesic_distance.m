@@ -14,7 +14,7 @@ TR = data_mesh.TR;
 
 %% initialize computation
 global geodesic_library;                
-geodesic_library = 'geodesic_debug';                %"release" is faster and "debug" does additional checks
+geodesic_library = 'geodesic_release';                %"release" is faster and "debug" does additional checks
 vertices = TR.Points;
 faces = TR.ConnectivityList;
 num_vertices = size(TR.Points, 1);
@@ -29,8 +29,8 @@ algorithm = geodesic_new_algorithm(mesh, 'exact'); 	%initialize new geodesic alg
 %     model_name, '_vertice_geo_distance.mat'], 'Writable', true);
 % geodesic distance between each pair of vertices
 vertice_geo_dis_mtx = zeros(num_vertices, num_vertices);
-for i = 1 : 1 : 10
-    for j = i+1 : 1 : 10
+for i = 1 : 1 : num_vertices
+    for j = i+1 : 1 : num_vertices
         try
             vertex_i = i;
             vertex_j = j;         % both choose the first vertex of the face

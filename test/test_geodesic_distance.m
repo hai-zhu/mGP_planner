@@ -4,7 +4,7 @@ clear
 clc
 
 global geodesic_library;                
-geodesic_library = 'geodesic_debug';                %"release" is faster and "debug" does additional checks
+geodesic_library = 'geodesic_release';                %"release" is faster and "debug" does additional checks
 
 %% Load a mesh
 data = load('cylinder_mesh.mat');
@@ -15,10 +15,10 @@ vertices = TR.Points;
 faces = TR.ConnectivityList;
 mesh = geodesic_new_mesh(vertices,faces);           %initilize new mesh
 algorithm = geodesic_new_algorithm(mesh, 'exact'); 	%initialize new geodesic algorithm
-vertex_i = 1;                                      %create a single source at vertex #1
+vertex_i = 10;                                      %create a single source at vertex #1
 source_points = {geodesic_create_surface_point('vertex',vertex_i,vertices(vertex_i,:))};
 geodesic_propagate(algorithm, source_points);       %propagation stage of the algorithm (the most time-consuming)
-vertex_j = 1097;                                    %create a single destination at vertex #N
+vertex_j = 820;                                    %create a single destination at vertex #N
 destination = geodesic_create_surface_point('vertex',vertex_j,vertices(vertex_j,:));
 path = geodesic_trace_back(algorithm, destination);	%find a shortest path from source to destination
 [x,y,z] = extract_coordinates_from_path(path);
