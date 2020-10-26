@@ -15,6 +15,7 @@ model.name = model_name;
 % mesh
 data_mesh = load([model_name, '_mesh.mat']);
 model.TR = data_mesh.TR;
+model.valid_faces = data_mesh.valid_faces;
 TR = data_mesh.TR;
 % occupancy
 data_occupancy = load([model_name, '_map_occupancy']);

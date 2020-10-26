@@ -14,6 +14,7 @@ model.name = model_name;
 % mesh
 data_mesh = load([model_name, '_mesh.mat']);
 model.TR = data_mesh.TR;
+model.valid_faces = data_mesh.valid_faces;
 TR = data_mesh.TR;
 % occupancy
 data_occupancy = load([model_name, '_map_occupancy']);
@@ -32,7 +33,7 @@ model.temperature_field = data_temperature_field.F_value;
 
 
 %% Planning results
-results_name = 'cylinder_matern_full';
+results_name = 'cylinder_cmaes_kernel_5_metrics';
 
 %% Ground truth and initial map
 dim_x_env = map_parameters.dim_x_env;
@@ -49,7 +50,7 @@ if (matlab_parameters.visualize_map)
     
     subplot(2, 3, 1)
     hold on;
-    axis([-3 15 -3 15 0 25]);
+    axis([-9 9 -9 9 0 25]);
     xlabel('x [m]');
     ylabel('y [m]');
     zlabel('z [m]');
@@ -63,7 +64,7 @@ if (matlab_parameters.visualize_map)
     
     subplot(2, 3, 2)
     hold on;
-    axis([-3 15 -3 15 0 25]);
+    axis([-9 9 -9 9 0 25]);
     xlabel('x [m]');
     ylabel('y [m]');
     zlabel('z [m]');
@@ -77,7 +78,7 @@ if (matlab_parameters.visualize_map)
     
     subplot(2, 3, 5)
     hold on;
-    axis([-3 15 -3 15 0 25]);
+    axis([-9 9 -9 9 0 25]);
     xlabel('x [m]');
     ylabel('y [m]');
     zlabel('z [m]');
@@ -92,7 +93,7 @@ if (matlab_parameters.visualize_map)
 end
 
 %% Take first measurement
-viewpoint_init = [0, 0, 4, deg2rad(45)];
+viewpoint_init = [10, 0, 4, -pi];
 % comment if not taking a first measurement
 faces_map = take_measurement_at_viewpoint(viewpoint_init, faces_map, ...
         ground_truth_faces_map, map_parameters, sensor_parameters);
@@ -104,7 +105,7 @@ P_prior = P_post;
 % 
 %     subplot(2, 4, 3)
 %     hold on;
-%     axis([-3 15 -3 15 0 25]);
+%     axis([-9 9 -9 9 0 25]);
 %     xlabel('x [m]');
 %     ylabel('y [m]');
 %     zlabel('z [m]');
@@ -118,7 +119,7 @@ P_prior = P_post;
 %     
 %     subplot(2, 4, 7)
 %     hold on;
-%     axis([-3 15 -3 15 0 25]);
+%     axis([-9 9 -9 9 0 25]);
 %     xlabel('x [m]');
 %     ylabel('y [m]');
 %     zlabel('z [m]');
@@ -137,7 +138,7 @@ if (matlab_parameters.visualize_map)
     
     subplot(2, 3, 3)
     hold on;
-    axis([-3 15 -3 15 0 25]);
+    axis([-9 9 -9 9 0 25]);
     xlabel('x [m]');
     ylabel('y [m]');
     zlabel('z [m]');
@@ -151,7 +152,7 @@ if (matlab_parameters.visualize_map)
     
     subplot(2, 3, 6)
     hold on;
-    axis([-3 15 -3 15 0 25]);
+    axis([-9 9 -9 9 0 25]);
     xlabel('x [m]');
     ylabel('y [m]');
     zlabel('z [m]');

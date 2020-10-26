@@ -17,6 +17,7 @@ model.name = model_name;
 % mesh
 data_mesh = load([model_name, '_mesh.mat']);
 model.TR = data_mesh.TR;
+model.valid_faces = data_mesh.valid_faces;
 TR = data_mesh.TR;
 % occupancy
 data_occupancy = load([model_name, '_map_occupancy']);
@@ -177,8 +178,10 @@ for i = 1:num_points_meas
     metrics.faces_map_m = [metrics.faces_map_m; faces_map.m'];
     metrics.faces_map_P_diag = [metrics.faces_map_P_diag; diag(faces_map.P)'];
     metrics.P_traces = [metrics.P_traces; trace(faces_map.P)];
-    metrics.rmses = [metrics.rmses; compute_rmse(faces_map.m, ground_truth_faces_map)];
-    metrics.wrmses = [metrics.wrmses; compute_wrmse(faces_map.m, ground_truth_faces_map)];
+    metrics.rmses = [metrics.rmses; compute_rmse(faces_map.m(map_parameters.valid_faces), ...
+        ground_truth_faces_map(map_parameters.valid_faces))];
+    metrics.wrmses = [metrics.wrmses; compute_wrmse(faces_map.m(map_parameters.valid_faces), ...
+        ground_truth_faces_map(map_parameters.valid_faces))];
     metrics.mlls = [metrics.mlls; compute_mll(faces_map, ground_truth_faces_map)];
     metrics.wmlls = [metrics.wmlls; compute_wmll(faces_map, ground_truth_faces_map)];
 end

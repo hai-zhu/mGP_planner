@@ -12,6 +12,7 @@ model.name = model_name;
 % mesh
 data_mesh = load([model_name, '_mesh.mat']);
 model.TR = data_mesh.TR;
+model.valid_faces = data_mesh.valid_faces;
 TR = data_mesh.TR;
 % occupancy
 data_occupancy = load([model_name, '_map_occupancy']);
@@ -37,7 +38,7 @@ ground_truth_faces_map = create_ground_truth_map(map_parameters);
 figure;
 subplot(2, 2, 1)
 hold on;
-axis([-3 15 -3 15 0 25]);
+axis([-9 9 -9 9 0 25]);
 xlabel('x [m]');
 ylabel('y [m]');
 zlabel('z [m]');
@@ -71,7 +72,7 @@ faces_map_measure = 0.5*ones(size(ground_truth_faces_map));
 faces_map_measure(initial_observe_idx) = ground_truth_faces_map(initial_observe_idx);
 subplot(2, 2, 2)
 hold on;
-axis([-3 15 -3 15 0 25]);
+axis([-9 9 -9 9 0 25]);
 xlabel('x [m]');
 ylabel('y [m]');
 zlabel('z [m]');
@@ -123,7 +124,7 @@ Z = map_parameters.F_center;
     X_ref, Y_measure, Z);
 subplot(2,2,3);
 hold on;
-axis([-3 15 -3 15 0 25]);
+axis([-9 9 -9 9 0 25]);
 xlabel('x [m]');
 ylabel('y [m]');
 zlabel('z [m]');
@@ -137,7 +138,7 @@ colormap jet
 % colorbar
 % subplot(2,3,4);
 % hold on;
-% axis([-3 15 -3 15 0 25]);
+% axis([-9 9 -9 9 0 25]);
 % xlabel('x [m]');
 % ylabel('y [m]');
 % zlabel('z [m]');
@@ -168,7 +169,7 @@ if Lchol    % L contains chol decomp => use Cholesky parameters (alpha,sW,L)
 end
 subplot(2,2,4);
 hold on;
-axis([-3 15 -3 15 0 25]);
+axis([-9 9 -9 9 0 25]);
 xlabel('x [m]');
 ylabel('y [m]');
 zlabel('z [m]');
@@ -182,7 +183,7 @@ caxis([0 var_max]);
 
 % subplot(2,3,6);
 % hold on;
-% axis([-3 15 -3 15 0 25]);
+% axis([-9 9 -9 9 0 25]);
 % xlabel('x [m]');
 % ylabel('y [m]');
 % zlabel('z [m]');

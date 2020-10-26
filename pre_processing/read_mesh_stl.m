@@ -14,8 +14,24 @@ switch model_name
         error('Model cannot be found!');
 end
 [TR, fileformat, attributes, solidID] = stlread(file_name);
+
+
+%% Valid faces for inspection (ignore the bottom side)
+valid_faces = [];
+bottom_side = [];
+for i = 1 : size(TR.ConnectivityList, 1)
+    vertices_i = TR.Points(TR.ConnectivityList(i, :), :);
+    if max(vertices_i(:, 3)) <= 0.2
+        bottom_side = [bottom_side; i];
+    else
+        valid_faces = [valid_faces; i];
+    end
+end
+
+
+%% Save data
 save([root_folder, '/surface_resources/cylinder/model/', ...
-    model_name, '_mesh.mat'], 'TR');
+    model_name, '_mesh.mat'], 'TR', 'valid_faces', 'bottom_side');
 
 
 %% visualization
@@ -51,12 +67,12 @@ for iF = 1 : num_faces
     F_center_iF = F_center(iF, :);
     F_normal_iF = F_normal(iF, :);
     % patch the face
-%     patch(ax_mesh, 'XData', F_points_iF(:, 1), ...
-%           'YData', F_points_iF(:, 2), ...
-%           'ZData', F_points_iF(:, 3), ...
-%           'FaceColor', rand*ones(1,3), ...
-%           'FaceAlpha', 1.0, ...
-%           'EdgeColor', 'c');
+    patch(ax_mesh, 'XData', F_points_iF(:, 1), ...
+          'YData', F_points_iF(:, 2), ...
+          'ZData', F_points_iF(:, 3), ...
+          'FaceColor', [0,102,162]/256, ...
+          'FaceAlpha', 1.0, ...
+          'EdgeColor', 'c');
     % plot face center
 %     plot3(ax_mesh, F_center_iF(1), F_center_iF(2), ...
 %         F_center_iF(3), '.r');

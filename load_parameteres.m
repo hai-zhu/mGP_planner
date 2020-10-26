@@ -42,6 +42,8 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     TR = model.TR;
     map_parameters.TR = TR;
     map_parameters.num_faces = size(TR.ConnectivityList, 1);
+    map_parameters.valid_faces = model.valid_faces;
+    map_parameters.num_valid_faces = length(model.valid_faces);
     dir = 1;
     if strcmp(model.name, 'boeing747')
         dir = -1;

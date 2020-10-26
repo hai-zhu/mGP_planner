@@ -62,7 +62,7 @@ function faces_map = create_initial_map(map_parameters)
     
     % P should be semi-positive definite
     if min(eig(faces_map.P)) < 0
-        warning('Initial covariance matrix not semi-positive definite!');
+        warning('Initial covariance matrix not semi-positive definite! Try to find the nearest SPD.');
         % make it positive definite
         faces_map.P = nearestSPD(faces_map.P);
     end
