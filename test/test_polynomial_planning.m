@@ -3,8 +3,8 @@ clear
 clc 
 
 %% Parameters
-dim_x_env = [-8, 20];
-dim_y_env = [-8, 20];
+dim_x_env = [-14, 14];
+dim_y_env = [-14, 14];
 dim_z_env = [0, 30];
 max_vel = 4;
 max_acc = 3;
@@ -42,10 +42,10 @@ view(ax_map, 3);
 
 %% 3D trajectory in obstacle-free env.
 % waypoints, the first one is the starting point
-waypoints = [0,     0,      4,      deg2rad(45);
-             2.46,  0.62,   24.54,  deg2rad(60);
-             10.93, 5.54,   22,     deg2rad(170);
-             16.82, 4.60,   15.02,  deg2rad(170)];
+waypoints = [-6,     -6,    4,      deg2rad(45);
+             -4,     -6,    24.54,  deg2rad(60);
+              4,     -1,    23,     deg2rad(170);
+             10,   -2.4,    16,    deg2rad(170)];
 % plan trajectory and sample, position
 trajectory = plan_path_waypoints(waypoints(:,1:3), max_vel, max_acc);
 dt = 0.5;

@@ -26,8 +26,8 @@ algorithm = geodesic_new_algorithm(mesh, 'exact'); 	%initialize new geodesic alg
 %% computation for each loop
 % geodesic distance between each pair of vertices
 vertice_geo_dis_mtx = zeros(num_vertices, num_vertices);
-for i = 511 : -1 : 411
-    for j = i-1 : -1 : 1
+for i = 1 : 1 : num_faces
+    for j = i+1 : 1 : num_faces
         try
             vertex_i = i;
             vertex_j = j;         % both choose the first vertex of the face
@@ -46,11 +46,11 @@ for i = 511 : -1 : 411
         end
     end
     fprintf('i = %d, %.2f %% finished. Please wait... \n', ...
-        i, 100-100*i/num_vertices);
+        i, 100*i/num_vertices);
 end
 
 % further compute geodesic distance between each pair of faces
 
 save([root_folder, '/surface_resources/cylinder/model/', ...
-    model_name, '_vertice_geo_distance_511_411.mat'], 'vertice_geo_dis_mtx');
+    model_name, '_vertice_geo_distance.mat'], 'vertice_geo_dis_mtx');
 

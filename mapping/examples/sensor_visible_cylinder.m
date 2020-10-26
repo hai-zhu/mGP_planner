@@ -44,6 +44,7 @@ viewpoints = [  0         0         4.0000    0.7854;
                 17.8547    8.3258   20.0581   -2.9479;
                 16.2890   14.3044    9.4139   -2.4625;
                 9.5461   19.6234   14.6199   -1.8254];
+viewpoints(:,1:2) = viewpoints(:,1:2) - 6;
 i = 2;
 cam_pos = viewpoints(i, 1:3)';
 cam_yaw = sensor_parameters.cam_yaw + viewpoints(i, 4);
@@ -59,7 +60,7 @@ cam_pitch = sensor_parameters.cam_pitch;
 fig_main = figure;
 hold on;
 grid on;
-axis([-6 18 -6 18 0 24]);
+axis([-12 12 -12 12 0 24]);
 xlabel('x [m]');
 ylabel('y [m]');
 zlabel('z [m]');
@@ -111,7 +112,7 @@ for iF = 1 : num_faces
 end
 fig_map = figure;
 hold on;
-axis([-8 20 -8 20 0 30]);
+axis([-14 14 -14 14 0 30]);
 xlabel('x [m]');
 ylabel('y [m]');
 zlabel('z [m]');

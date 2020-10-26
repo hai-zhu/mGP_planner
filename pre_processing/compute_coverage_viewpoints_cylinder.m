@@ -30,7 +30,7 @@ model.temperature_field = data_temperature_field.F_value;
 
 
 %% lattice viewpoints
-cylinder_center = [6; 6; 11];
+cylinder_center = [0; 0; 11];
 cylerder_radius = 6;
 cylerder_height = 21;
 sensor_range = 4;
@@ -71,7 +71,7 @@ end
 % surface mesh
 fig_main = figure;
 hold on; grid on;
-axis([-6 18 -6 18 0 25]);
+axis([-12 12 -12 12 0 25]);
 xlabel('x [m]'); ylabel('y [m]'); zlabel('z [m]');
 ax_main = fig_main.CurrentAxes;
 trimesh(TR, 'FaceColor', [0.8,0.8,0.8], 'FaceAlpha', 1.0, ...

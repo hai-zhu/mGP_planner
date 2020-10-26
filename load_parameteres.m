@@ -20,10 +20,10 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     % dimension
     map_parameters.model_name = model.name;
     if strcmp(model.name, 'cylinder')
-        map_parameters.dim_x_env = [-8, 20];
-        map_parameters.dim_y_env = [-8, 20];
+        map_parameters.dim_x_env = [-14, 14];
+        map_parameters.dim_y_env = [-14, 14];
         map_parameters.dim_z_env = [2, 30];
-        map_parameters.center_pos = [6; 6; 11];
+        map_parameters.center_pos = [0; 0; 11];
     elseif strcmp(model.name, 'boeing747')
         map_parameters.dim_x_env = [-8 80];
         map_parameters.dim_y_env = [-6 70];

@@ -39,7 +39,7 @@ ground_truth_faces_map = create_ground_truth_map(map_parameters);
 faces_map = create_initial_map(map_parameters);
 P_prior = diag(faces_map.P);
 
-dim_xyz_plot = [-3 15 -3 15 0 25];
+dim_xyz_plot = [-9 9 -9 9 0 25];
 if (matlab_parameters.visualize_map)
     
     figure;
@@ -90,7 +90,7 @@ end
 
 
 %% Take first measurement
-viewpoint_init = [16, 6, 4, -pi]; % [0, 0, 4, deg2rad(45)];
+viewpoint_init = [10, 0, 4, -pi]; % [0, 0, 4, deg2rad(45)];
 % comment if not taking a first measurement
 faces_map = take_measurement_at_viewpoint(viewpoint_init, faces_map, ...
         ground_truth_faces_map, map_parameters, sensor_parameters);

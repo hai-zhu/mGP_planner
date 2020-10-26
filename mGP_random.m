@@ -39,7 +39,7 @@ ground_truth_faces_map = create_ground_truth_map(map_parameters);
 faces_map = create_initial_map(map_parameters);
 P_prior = diag(faces_map.P);
 
-dim_xyz_plot = [-3 15 -3 15 0 25];
+dim_xyz_plot = [-9 9 -9 9 0 25];
 if (matlab_parameters.visualize_map)
     
     figure;

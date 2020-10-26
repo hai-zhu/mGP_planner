@@ -45,6 +45,7 @@ matlab_parameters.visualize = 1;
 % include position and mav yaw
 viewpoints_list = [5, -5, 15, deg2rad(90);
                    12,-3, 12, deg2rad(140)];
+viewpoints_list(:,1:2) = viewpoints_list(:,1:2) - 6;
 
 
 %% ground truth map
@@ -96,7 +97,7 @@ if matlab_parameters.visualize
     % ground truth map
     subplot(2, num_measurements+2, 1);
     hold on;
-    axis([-3 15 -3 15 0 25]);
+    axis([-9 9 -9 9 0 25]);
     xlabel('x [m]');
     ylabel('y [m]');
     zlabel('z [m]');
@@ -110,7 +111,7 @@ if matlab_parameters.visualize
     % prior mean
     subplot(2, num_measurements+2, 2);
     hold on;
-    axis([-3 15 -3 15 0 25]);
+    axis([-9 9 -9 9 0 25]);
     xlabel('x [m]');
     ylabel('y [m]');
     zlabel('z [m]');
@@ -124,7 +125,7 @@ if matlab_parameters.visualize
     % prior variance
     subplot(2, num_measurements+2, num_measurements+4);
     hold on;
-    axis([-3 15 -3 15 0 25]);
+    axis([-9 9 -9 9 0 25]);
     xlabel('x [m]');
     ylabel('y [m]');
     zlabel('z [m]');
@@ -153,7 +154,7 @@ for i = 1 : num_measurements
         % mean
         subplot(2, num_measurements+2, i+2);
         hold on;
-        axis([-3 15 -3 15 0 25]);
+        axis([-9 9 -9 9 0 25]);
         xlabel('x [m]');
         ylabel('y [m]');
         zlabel('z [m]');
@@ -170,7 +171,7 @@ for i = 1 : num_measurements
         % variance
         subplot(2, num_measurements+2, num_measurements+4+i);
         hold on;
-        axis([-3 15 -3 15 0 25]);
+        axis([-9 9 -9 9 0 25]);
         xlabel('x [m]');
         ylabel('y [m]');
         zlabel('z [m]');

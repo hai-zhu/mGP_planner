@@ -9,8 +9,8 @@ root_folder = pwd;
 model_name = 'cylinder';            % cylinder, boeing747, u_cylinder
 switch model_name
     case 'cylinder'
-        dim_x_env = [-8, 20];
-        dim_y_env = [-8, 20];
+        dim_x_env = [-14, 14];
+        dim_y_env = [-14, 14];
         dim_z_env = [2, 30];
     otherwise
         error('Model cannot be found!');

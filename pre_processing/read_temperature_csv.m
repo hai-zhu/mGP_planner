@@ -10,7 +10,7 @@ model_name = 'cylinder';            % cylinder, boeing747, u_cylinder
 switch model_name
     case 'cylinder'
         file_name = 'simple_cylinder_excluded_thermal-Thermal 1-Results-Thermal1-2.csv';
-        obj_center = [6; 6; 11];
+        obj_center = [0; 0; 11];
     otherwise
         error('Model cannot be found!');
 end
