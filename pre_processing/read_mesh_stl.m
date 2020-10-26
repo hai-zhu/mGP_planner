@@ -27,6 +27,9 @@ for i = 1 : size(TR.ConnectivityList, 1)
         valid_faces = [valid_faces; i];
     end
 end
+% for debugging
+% valid_faces = 1 : size(TR.ConnectivityList, 1);
+% bottom_side = [];
 
 
 %% Save data
