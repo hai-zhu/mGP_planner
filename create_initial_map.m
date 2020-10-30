@@ -11,11 +11,12 @@ function faces_map = create_initial_map(map_parameters)
     switch map_parameters.kernel_choice
         case 0      % I
             disp('Covariance initialization: Identity matrix');
-            faces_map.P = eye(map_parameters.num_faces);
+            faces_map.P = 4000 * eye(map_parameters.num_faces) / map_parameters.num_faces;
         case 1      % Random SPD
             disp('Covariance initialization: Random SPD');
             SPDmatrix = generateSPDmatrix(map_parameters.num_faces);
-            faces_map.P = 0.1 * SPDmatrix;
+            traceSPD = trace(SPDmatrix);
+            faces_map.P = 4000 * SPDmatrix / traceSPD;
         case 2      % Matern
             disp('Covariance initialization: Matern kernel');
             for i = 1 : map_parameters.num_faces

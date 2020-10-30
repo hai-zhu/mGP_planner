@@ -70,7 +70,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     % max range for lattice search
     map_parameters.lattice_range = 12;
     % kernel choice
-    map_parameters.kernel_choice = 5;   % 0-I; 1-Random SPD; 2-Matern; 3-SE; 4-Heat; 5-Geo Matern
+    map_parameters.kernel_choice = 0;   % 0-I; 1-Random SPD; 2-Matern; 3-SE; 4-Heat; 5-Geo Matern
     % matern kenel function parameters
     map_parameters.sigma_f = exp(0.3);  % 0.01, 0.3, 0.6
     map_parameters.l = exp(1.3); % 0.2, 1.3, 2.0

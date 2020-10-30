@@ -4,7 +4,7 @@ clear all
 clear 
 clc 
 
-load cylinder_kernel_5.mat
+load cylinder_ipp_correlation.mat
 
 rescale_factor = 1;
 %rescale_factor = 0.75;
@@ -284,8 +284,8 @@ if (do_plot)
         'LooseInset', max(get(gca,'TightInset'), 0.02));
     
     if (show_legend)
-        h_legend = legend(h, 'IPP', ...
-            'Random', 'Coverage', ...
+        h_legend = legend(h, 'mGP', ...
+            'Identity', 'random SPD', ...
             'FontName', 'HelveticaNarrow');
     end
     

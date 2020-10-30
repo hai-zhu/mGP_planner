@@ -13,7 +13,7 @@ append_to_logger = 0;
 if (~append_to_logger)
     num_trials = 1;
 else
-    load cylinder_kernel_5.mat
+    load cylinder_ipp_correlation.mat
     trials = fieldnames(logger);
     trials = regexp(trials,'\d*','Match');
     trials = [trials{:}];
@@ -52,9 +52,9 @@ viewpoint_init = [-7.0711   -7.0711    4.0000    0.7854]; %[10, 0, 4, -pi]
 
 
 %% Collecting data
-use_ipp = 1;
-use_coverage = 1;
-use_random = 1;
+use_mGP = 1;
+use_I = 1;
+use_SPD = 1;
 
 %logger = struct;
 
@@ -69,31 +69,34 @@ for i = 1:num_trials
     logger.(['trial', num2str(t)]).num = t;
        
     try
-        if (use_ipp) 
+        if (use_mGP) 
             rng(t, 'twister');
+            map_parameters.kernel_choice = 5;
             [metrics, ~] = mGP_cmaes_full_function(...
                 viewpoint_init, ...
                 map_parameters, sensor_parameters, planning_parameters, ...
                 optimization_parameters, matlab_parameters);
-            logger.(['trial', num2str(t)]).('ipp') = metrics;
+            logger.(['trial', num2str(t)]).('mGP') = metrics;
         end
         
-        if (use_random)
+        if (use_I)
             rng(t, 'twister');
-            [metrics, ~] = mGP_random_function(...
+            map_parameters.kernel_choice = 0;
+            [metrics, ~] = mGP_cmaes_full_function(...
                 viewpoint_init, ...
                 map_parameters, sensor_parameters, planning_parameters, ...
                 optimization_parameters, matlab_parameters);
-            logger.(['trial', num2str(t)]).('random') = metrics;
+            logger.(['trial', num2str(t)]).('I') = metrics;
         end
         
-        if (use_coverage)
+        if (use_SPD)
             rng(t, 'twister');
-            [metrics, ~] = mGP_coverage_function(...
+            map_parameters.kernel_choice = 1;
+            [metrics, ~] = mGP_cmaes_full_function(...
                 viewpoint_init, ...
                 map_parameters, sensor_parameters, planning_parameters, ...
-                optimization_parameters, matlab_parameters);
-            logger.(['trial', num2str(t)]).('coverage') = metrics;
+                optimization_parameters, matlab_parameters);;
+            logger.(['trial', num2str(t)]).('SPD') = metrics;
         end
         
         disp(['Completed Trial ', num2str(t)]);
@@ -104,7 +107,7 @@ for i = 1:num_trials
         
     end
     
-    save([root_folder, '/eval/planning_method/', map_parameters.model_name, '_kernel_', ...
-        num2str(map_parameters.kernel_choice), '.mat']); 
+    save([root_folder, '/eval/spatial_correlation/', map_parameters.model_name, ...
+        '_ipp_correlation', '.mat']); 
     
 end

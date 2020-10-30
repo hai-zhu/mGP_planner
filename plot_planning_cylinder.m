@@ -220,4 +220,5 @@ if (matlab_parameters.visualize_path)
 end
 
 %% Quantantive results
+figure;
 plot_metrics(metrics);
