@@ -84,7 +84,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     planning_parameters.max_acc = 3;            % [m/s^2]
     planning_parameters.plan_yaw = 0;           % if also plan yaw polynomial trajectory
     planning_parameters.max_yaw_rate = deg2rad(90); % [rad/s]
-    planning_parameters.time_budget = 180;
+    planning_parameters.time_budget = 120;
     planning_parameters.lambda = 0.001;         % parameter to control 
                                                 % exploration-exploitation 
                                                 % trade-off in objective
@@ -104,9 +104,9 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     optimization_parameters.cov_yaw = 3;
     
     %% matlab parameters
-    matlab_parameters.visualize_map = 1;
-    matlab_parameters.visualize_path = 1;
-    matlab_parameters.visualize_cam = 1;
+    matlab_parameters.visualize_map = 0;
+    matlab_parameters.visualize_path = 0;
+    matlab_parameters.visualize_cam = 0;
 
     disp('Parameters loaded!');
     

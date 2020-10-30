@@ -1,38 +1,7 @@
-% a planning example
-close all
-clear all
-clear 
-clc 
-
-root_folder = pwd;
-
-% Random number generator
-% matlab_parameters.seed_num = 3;
-% rng(matlab_parameters.seed_num, 'twister');
-
-
-%% Environment
-model_name = 'cylinder';
-model.name = model_name;
-% mesh
-data_mesh = load([model_name, '_mesh.mat']);
-model.TR = data_mesh.TR;
-model.valid_faces = data_mesh.valid_faces;
-TR = data_mesh.TR;
-% occupancy
-data_occupancy = load([model_name, '_map_occupancy']);
-model.occupancy = data_occupancy.occupancy; 
-% esdf
-data_esdf = load([model_name, '_map_esdf']);
-model.esdf = data_esdf.esdf; 
-% true temperature field
-data_temperature_field = load([model_name, '_temperature_field']);
-model.temperature_field = data_temperature_field.F_value;
-
-
-%% Parameters
-[map_parameters, sensor_parameters, planning_parameters, optimization_parameters, ...
-    matlab_parameters] = load_parameteres(model);
+function [metrics, faces_map] = mGP_random_function(...
+    viewpoint_init, ...
+    map_parameters, sensor_parameters, planning_parameters, ...
+    optimization_parameters, matlab_parameters)
 
 
 %% Ground truth and initial map
@@ -91,7 +60,6 @@ end
 
 
 %% Take first measurement
-viewpoint_init = [-7.0711   -7.0711    4.0000    0.7854]; %[10, 0, 4, -pi]
 % comment if not taking a first measurement
 faces_map = take_measurement_at_viewpoint(viewpoint_init, faces_map, ...
         ground_truth_faces_map, map_parameters, sensor_parameters);
@@ -132,7 +100,7 @@ end
 
 
 %% Lattice viewpoints
-data_lattice = load([model_name, '_lattice_viewpoints.mat']);
+data_lattice = load([map_parameters.model_name, '_lattice_viewpoints.mat']);
 lattice_viewpoints = data_lattice.lattice_viewpoints;
 num_lattice_viewpoints = size(lattice_viewpoints, 1);
 
@@ -306,8 +274,4 @@ if (matlab_parameters.visualize_path)
     
 end
 
-figure;
-plot_metrics(metrics);
-
-save([root_folder, '/logs/cylinder/', model_name, '_random_', 'kernel_', ...
-    num2str(map_parameters.kernel_choice), '_metrics.mat'], 'metrics'); 
+end

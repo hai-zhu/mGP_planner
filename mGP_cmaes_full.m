@@ -91,7 +91,7 @@ end
 
 
 %% Take first measurement
-viewpoint_init = [10, 0, 4, -pi]; % [0, 0, 4, deg2rad(45)];
+viewpoint_init = [-7.0711   -7.0711    4.0000    0.7854]; %[10, 0, 4, -pi]
 % comment if not taking a first measurement
 faces_map = take_measurement_at_viewpoint(viewpoint_init, faces_map, ...
         ground_truth_faces_map, map_parameters, sensor_parameters);

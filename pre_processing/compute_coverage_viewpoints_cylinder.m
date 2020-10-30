@@ -41,11 +41,11 @@ phi = zeros(1, xy_num);
 da = 2*pi/xy_num;
 dphi = deg2rad(30);
 for i = 1 : xy_num
-    xy(1, i) = (cylerder_radius + sensor_range) * cos((i-1)*da) + cylinder_center(1);
-    xy(2, i) = (cylerder_radius + sensor_range) * sin((i-1)*da) + cylinder_center(2);
-    phi(1, i) = -pi + da*(i-1);
+    xy(1, i) = (cylerder_radius + sensor_range) * cos((i-1)*da + 5*pi/4) + cylinder_center(1);
+    xy(2, i) = (cylerder_radius + sensor_range) * sin((i-1)*da + 5*pi/4) + cylinder_center(2);
+    phi(1, i) = -pi + da*(i-1)  + 5*pi/4;
 end
-h_step = 4;
+h_step = 6;
 h_num = 24 / h_step;
 lattice_viewpoints = [];
 for i = 1 : h_num

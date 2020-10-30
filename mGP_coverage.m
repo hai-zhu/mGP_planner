@@ -7,8 +7,8 @@ clc
 root_folder = pwd;
 
 % Random number generator
-matlab_parameters.seed_num = 3;
-rng(matlab_parameters.seed_num, 'twister');
+% matlab_parameters.seed_num = 3;
+% rng(matlab_parameters.seed_num, 'twister');
 
 
 %% Environment
@@ -91,7 +91,7 @@ end
 
 
 %% Take first measurement
-viewpoint_init = [16, 6, 4, -pi];
+viewpoint_init = [-7.0711   -7.0711    4.0000    0.7854]; %[10, 0, 4, -pi]
 % comment if not taking a first measurement
 faces_map = take_measurement_at_viewpoint(viewpoint_init, faces_map, ...
         ground_truth_faces_map, map_parameters, sensor_parameters);
@@ -166,6 +166,15 @@ if planning_parameters.plan_yaw == 0
         yaws_meas(i) = get_best_yaw(points_meas(i,1:3), map_parameters);
     end
 end
+
+% Remove the viewpoints beyond budget
+idx_in_budget = find(times_meas <= planning_parameters.time_budget);
+if length(idx_in_budget) < length(times_meas)
+    trajectory_time = planning_parameters.time_budget;
+end
+times_meas = times_meas(idx_in_budget);
+points_meas = points_meas(idx_in_budget,:);
+yaws_meas = yaws_meas(idx_in_budget,:);
 
 % Combine the viewpoints
 num_points_meas = size(points_meas,1);

@@ -1,38 +1,7 @@
-% a planning example
-close all
-clear all
-clear 
-clc 
-
-root_folder = pwd;
-
-% Random number generator
-% matlab_parameters.seed_num = 3;
-% rng(matlab_parameters.seed_num, 'twister');
-
-
-%% Environment
-model_name = 'cylinder';
-model.name = model_name;
-% mesh
-data_mesh = load([model_name, '_mesh.mat']);
-model.TR = data_mesh.TR;
-model.valid_faces = data_mesh.valid_faces;
-TR = data_mesh.TR;
-% occupancy
-data_occupancy = load([model_name, '_map_occupancy']);
-model.occupancy = data_occupancy.occupancy; 
-% esdf
-data_esdf = load([model_name, '_map_esdf']);
-model.esdf = data_esdf.esdf; 
-% true temperature field
-data_temperature_field = load([model_name, '_temperature_field']);
-model.temperature_field = data_temperature_field.F_value;
-
-
-%% Parameters
-[map_parameters, sensor_parameters, planning_parameters, optimization_parameters, ...
-    matlab_parameters] = load_parameteres(model);
+function [metrics, faces_map] = mGP_cmaes_full_function(...
+    viewpoint_init, ...
+    map_parameters, sensor_parameters, planning_parameters, ...
+    optimization_parameters, matlab_parameters)
 
 
 %% Ground truth and initial map
@@ -91,7 +60,6 @@ end
 
 
 %% Take first measurement
-viewpoint_init = [-7.0711   -7.0711    4.0000    0.7854]; %[10, 0, 4, -pi]
 % comment if not taking a first measurement
 faces_map = take_measurement_at_viewpoint(viewpoint_init, faces_map, ...
         ground_truth_faces_map, map_parameters, sensor_parameters);
@@ -132,7 +100,7 @@ end
 
 
 %% Lattice viewpoints
-data_lattice = load([model_name, '_lattice_viewpoints.mat']);
+data_lattice = load([map_parameters.model_name, '_lattice_viewpoints.mat']);
 lattice_viewpoints = data_lattice.lattice_viewpoints;
 num_lattice_viewpoints = size(lattice_viewpoints, 1);
 
@@ -145,15 +113,30 @@ metrics = initialize_metrics_inspect();
 
 while (time_elapsed < planning_parameters.time_budget)
 
-    %% Step 1.Random select the lattice viewpoints
-    path = random_select_lattice_viewpoints(viewpoint_prev, lattice_viewpoints, ...
+    %% Step 1. Grid search on the lattice viewpoints
+    path = search_lattice_viewpoints(viewpoint_prev, lattice_viewpoints, ...
         faces_map, map_parameters, sensor_parameters, planning_parameters);
+    obj = compute_objective_inspect(path, faces_map, map_parameters, sensor_parameters, ...
+        planning_parameters, optimization_parameters);
+    disp(['Objective before optimization: ', num2str(obj)]);
+
+    %% STEP 2. CMA-ES optimization, only optimize position now.
+    path_optimized = optimize_with_cmaes_inspect(path, faces_map, map_parameters, ...
+        sensor_parameters, planning_parameters, optimization_parameters);
     
     %% Plan Execution %%   
     % Create polynomial path through the control points.
-    trajectory = plan_path_waypoints(path(:,1:3), ...
+    trajectory = plan_path_waypoints(path_optimized(:,1:3), ...
             planning_parameters.max_vel, planning_parameters.max_acc);
-    control_yaws = path(:,4);
+    % Find best yaw for each control point if not optimizing
+    if (optimization_parameters.opt_yaw)
+        control_yaws = path_optimized(:,4);
+    else
+        control_yaws = zeros(size(path_optimized, 1), 1);
+        for i = 1 : size(path_optimized,1)
+            control_yaws(i) = get_best_yaw(path_optimized(i,1:3), map_parameters);
+        end
+    end 
     % Also create the yaw trajectory
     segment_time = zeros(trajectory.num_elements, 1);
     for i = 2 : trajectory.num_elements
@@ -206,14 +189,21 @@ while (time_elapsed < planning_parameters.time_budget)
     disp(['Trace after execution: ', num2str(trace(faces_map.P))]);
     disp(['Time after execution: ', num2str(get_trajectory_total_time(trajectory))]);
     gain = P_trace_init - trace(faces_map.P);
-   
+    if (strcmp(planning_parameters.obj, 'rate'))
+        cost = max(get_trajectory_total_time(trajectory), 1/planning_parameters.measurement_frequency);
+        disp(['Objective after optimization: ', num2str(-gain/cost)]);
+    elseif (strcmp(planning_parameters.obj, 'exponential'))
+        cost = get_trajectory_total_time(trajectory);
+        disp(['Objective after optimization: ', num2str(-gain*exp(-planning_parameters.lambda*cost))]);
+    end
+    
     metrics.viewpoints_meas = [metrics.viewpoints_meas; viewpoints_meas];
     metrics.times = [metrics.times; time_elapsed + times_meas'];
-    metrics.path_travelled = [metrics.path_travelled; path];
+    metrics.path_travelled = [metrics.path_travelled; path_optimized];
     metrics.trajectory_travelled = [metrics.trajectory_travelled; trajectory];
     
     P_trace_prev = trace(faces_map.P);
-    viewpoint_prev = [path(end,1:3),control_yaws(end)]; % End of trajectory (not last meas. point!)
+    viewpoint_prev = [path_optimized(end,1:3),control_yaws(end)]; % End of trajectory (not last meas. point!)
     
     time_elapsed = time_elapsed + trajectory_time; 
     disp(['Time elapsed: ', num2str(time_elapsed)]);
@@ -306,8 +296,4 @@ if (matlab_parameters.visualize_path)
     
 end
 
-figure;
-plot_metrics(metrics);
-
-save([root_folder, '/logs/cylinder/', model_name, '_random_', 'kernel_', ...
-    num2str(map_parameters.kernel_choice), '_metrics.mat'], 'metrics'); 
+end
