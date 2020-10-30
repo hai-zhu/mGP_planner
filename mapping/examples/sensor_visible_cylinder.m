@@ -75,6 +75,8 @@ h_mesh.EdgeColor = 'c';
 h_mesh.LineWidth = 0.5;
 h_mesh.LineStyle = '-';
 
+ax_main.Visible = 'off';
+
 % camera fov
 h_cam = plot_camera_fov(ax_main, cam_pos, cam_roll, cam_pitch, cam_yaw, ...
     sensor_parameters.fov_x, sensor_parameters.fov_y, ...

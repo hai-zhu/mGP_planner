@@ -89,7 +89,7 @@ end
 
 
 %% Take first measurement
-viewpoint_init = [10, 0, 4, -pi];
+viewpoint_init = [-7.0711   -7.0711    4.0000    0.7854]; %[10, 0, 4, -pi]
 faces_map = take_measurement_at_viewpoint(viewpoint_init, faces_map, ...
         ground_truth_faces_map, map_parameters, sensor_parameters);
 P_post = diag(faces_map.P);
@@ -253,6 +253,12 @@ if (matlab_parameters.visualize_path)
     axis([map_parameters.dim_x_env map_parameters.dim_y_env ...
         0 map_parameters.dim_z_env(2)]);
     plot_path_viewpoints(ax_path, 1, path_optimized, trajectory, viewpoints_meas);
+    
+    dt = 0.5;
+    [t, p] = sample_trajectory(trajectory, dt);
+    [t_yaw, yaw] = sample_trajectory(yaw_trajectory, dt);
+    plot_trajectory_cline(t, p, yaw);
+    
     
     % mesh object
     h_mesh = trimesh(TR);

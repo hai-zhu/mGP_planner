@@ -29,7 +29,7 @@ p_meas = viewpoints_meas(:, 1:3);
     h_line = cline(p(:,1), p(:,2), p(:,3), t);
     set(h_line, 'LineWidth', 2.5);
     % Visualize control points.
-    scatter3(ax, path(:,1), path(:,2), path(:,3), 40, 'dk', 'MarkerFaceColor',[0 .75 .75]);
+    scatter3(ax, path(:,1), path(:,2), path(:,3), 200, 'xk', 'MarkerFaceColor',[0 .75 .75]);
     % Visualize measurements.
     colors_meas = linspace(0, t(end), size(p_meas,1));
 
@@ -39,7 +39,7 @@ p_meas = viewpoints_meas(:, 1:3);
         colors_meas = colors_meas';
     end
 
-    scatter3(ax, p_meas(:,1), p_meas(:,2), p_meas(:,3), 120, colors_meas, 'filled');
+    scatter3(ax, p_meas(:,1), p_meas(:,2), p_meas(:,3), 60, colors_meas, 'filled');
 
     xlabel('x (m)')
     ylabel('y (m)')
