@@ -64,5 +64,5 @@ for iF = 1 : test_numF
     heat_kernel(iF, :, :) = heat_kernel_s0;
 end
 
-save([root_folder, '/surface_resources/cylinder/model/', ...
+save([root_folder, '/surface_resources/',model_name,'/model/', ...
     model_name, '_heat_kernel.mat'], 'heat_kernel');

@@ -33,7 +33,7 @@ end
 
 
 %% Save data
-save([root_folder, '/surface_resources/cylinder/model/', ...
+save([root_folder, '/surface_resources/',model_name,'/model/', ...
     model_name, '_mesh.mat'], 'TR', 'valid_faces', 'bottom_side');
 
 

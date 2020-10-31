@@ -22,9 +22,9 @@ FV.vertices = TR.Points;
 resolution = 0.5;
 [occupancy, esdf] = mesh_to_occupancy_esdf(FV, dim_x_env, dim_y_env, dim_z_env, ...
     resolution);
-save([root_folder, '/surface_resources/cylinder/model/', ...
+save([root_folder, '/surface_resources/',model_name,'/model/', ...
     model_name, '_map_occupancy.mat'], 'occupancy');
-save([root_folder, '/surface_resources/cylinder/model/', ...
+save([root_folder, '/surface_resources/',model_name,'/model/', ...
     model_name, '_map_esdf.mat'], 'esdf');
 
 %% visualization for test
@@ -32,7 +32,7 @@ save([root_folder, '/surface_resources/cylinder/model/', ...
 fig_mesh = figure;
 hold on;
 xlabel('x [m]'); ylabel('y [m]'); zlabel('z [m]');
-axis([dim_x_env, dim_y_env, 0, dim_z_env(2)]);
+axis([dim_x_env, dim_y_env, dim_z_env]);
 ax_mesh = fig_mesh.CurrentAxes;
 trimesh(TR, 'FaceColor', [0.8,0.8,0.8], 'FaceAlpha', 1.0, ...
     'EdgeColor', 'k', 'EdgeAlpha', 0.2, ...
@@ -43,7 +43,7 @@ view(3);
 fig_esdf = figure;
 hold on;
 grid on;
-axis([dim_x_env, dim_y_env, 0, dim_z_env(2)]);
+axis([dim_x_env, dim_y_env, dim_z_env]);
 xlabel('x [m]');
 ylabel('y [m]');
 zlabel('z [m]');

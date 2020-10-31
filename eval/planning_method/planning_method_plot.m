@@ -20,7 +20,7 @@ paper_pos = [0, 0, 6, 4];
 trials = fieldnames(logger);
 methods = fieldnames(logger.trial1);
 
-time_vector = 0:0.1:120;
+time_vector = 0:5:120;
 
 P_traces = zeros(length(methods)-1,length(time_vector));
 rmses = zeros(length(methods)-1,length(time_vector));

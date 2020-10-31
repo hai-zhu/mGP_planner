@@ -116,5 +116,5 @@ for i = 1 : num_lattice_viewpoints
     end
 end
 
-save([root_folder, '/surface_resources/cylinder/model/', ...
+save([root_folder, '/surface_resources/',model_name,'/model/', ...
     model_name, '_lattice_viewpoints.mat'], 'lattice_viewpoints', 'lattice_los_neighbors');

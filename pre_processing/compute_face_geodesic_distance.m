@@ -48,5 +48,5 @@ for i = 1 : num_faces
     end
 end
 
-save([root_folder, '/surface_resources/cylinder/model/', ...
+save([root_folder, '/surface_resources/',model_name,'/model/', ...
     model_name, '_face_geo_distance.mat'], 'face_geo_dis_mtx');

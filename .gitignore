@@ -7,3 +7,7 @@ logs/
 surface_resources/cylinder/model/cylinder_heat_kernel.mat
 
 eval/planning_method/cylinder_kernel_5.mat
+
+eval/spatial_correlation/cylinder_ipp_correlation.mat
+
+eval/spatial_correlation/cylinder_ipp_correlation_I_SPD.mat

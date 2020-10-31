@@ -20,7 +20,7 @@ paper_pos = [0, 0, 6, 4];
 trials = fieldnames(logger);
 methods = fieldnames(logger.trial1);
 
-time_vector = 0:0.1:120;
+time_vector = 0:5:120;
 
 P_traces = zeros(length(methods)-1,length(time_vector));
 rmses = zeros(length(methods)-1,length(time_vector));
@@ -156,8 +156,8 @@ if (do_plot)
         'LooseInset', max(get(gca,'TightInset'), 0.02));
     
     if (show_legend)
-        h_legend = legend(h, 'IPP', ...
-            'Random', 'Coverage', ...
+        h_legend = legend(h, 'mGP', ...
+            'Identity', 'random SPD', ...
             'FontName', 'HelveticaNarrow');
     end
 
@@ -165,7 +165,7 @@ if (do_plot)
     rescale_axes(rescale_factor);
  %   pbaspect(gca, [1 2 1])
     hold off
-    print(fig_P, '-dpdf', [pwd, '/cylinder_method_P.pdf']);
+    print(fig_P, '-dpdf', [pwd, '/cylinder_correlation_P.pdf']);
     
     %% RMSE %%
     fig_RMSE = figure;
@@ -199,8 +199,8 @@ if (do_plot)
         'LooseInset', max(get(gca,'TightInset'), 0.02));
     
     if (show_legend)
-        h_legend = legend(h, 'IPP', ...
-            'Random', 'Coverage', ...
+        h_legend = legend(h, 'mGP', ...
+            'Identity', 'random SPD', ...
             'FontName', 'HelveticaNarrow');
     end
     
@@ -208,7 +208,7 @@ if (do_plot)
     axis([0 time_vector(end) 0 0.24])
 %    pbaspect(gca, [1 2 1])
     hold off
-    print(fig_RMSE, '-dpdf', [pwd, '/cylinder_method_RMSE.pdf']);
+    print(fig_RMSE, '-dpdf', [pwd, '/cylinder_correlation_RMSE.pdf']);
     
     %% WRMSE %%
     fig_WRMSE = figure;
@@ -242,8 +242,8 @@ if (do_plot)
         'LooseInset', max(get(gca,'TightInset'), 0.02));
     
     if (show_legend)
-        h_legend = legend(h, 'IPP', ...
-            'Random', 'Coverage', ...
+        h_legend = legend(h, 'mGP', ...
+            'Identity', 'random SPD', ...
             'FontName', 'HelveticaNarrow');
     end
     
@@ -326,8 +326,8 @@ if (do_plot)
         'LooseInset', max(get(gca,'TightInset'), 0.02));
     
     if (show_legend)
-        h_legend = legend(h, 'IPP', ...
-            'Random', 'Coverage', ...
+        h_legend = legend(h, 'mGP', ...
+            'Identity', 'random SPD', ...
             'FontName', 'HelveticaNarrow');
     end
     

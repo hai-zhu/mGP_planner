@@ -54,5 +54,5 @@ end
 
 % further compute geodesic distance between each pair of faces
 
-save([root_folder, '/surface_resources/cylinder/model/', ...
+save([root_folder, '/surface_resources/',model_name,'/model/', ...
     model_name, '_vertice_geo_distance.mat'], 'vertice_geo_dis_mtx');

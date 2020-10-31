@@ -10,7 +10,7 @@ rng(matlab_parameters.seed_num, 'twister');
 
 
 %% Environment
-model_name = 'cylinder';
+model_name = 'boeing747'; % cylinder, boeing747
 model.name = model_name;
 % mesh
 data_mesh = load([model_name, '_mesh.mat']);
@@ -38,7 +38,8 @@ ground_truth_faces_map = create_ground_truth_map(map_parameters);
 faces_map = create_initial_map(map_parameters);
 P_prior = diag(faces_map.P);
 
-dim_xyz_plot = [-9 9 -9 9 0 25];
+% dim_xyz_plot = [-9 9 -9 9 0 25];
+dim_xyz_plot = [-8 80 -40 40 -4 16];
 if (matlab_parameters.visualize_map)
     
     figure;
@@ -89,7 +90,8 @@ end
 
 
 %% Take first measurement
-viewpoint_init = [-7.0711   -7.0711    4.0000    0.7854]; %[10, 0, 4, -pi]
+% viewpoint_init = [-7.0711   -7.0711    4.0000    0.7854]; %[10, 0, 4, -pi]
+viewpoint_init = [-4   0    0    0];
 faces_map = take_measurement_at_viewpoint(viewpoint_init, faces_map, ...
         ground_truth_faces_map, map_parameters, sensor_parameters);
 P_post = diag(faces_map.P);

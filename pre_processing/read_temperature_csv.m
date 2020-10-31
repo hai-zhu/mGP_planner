@@ -49,7 +49,7 @@ min_value = min(F_value);
 max_value = max(F_value);
 F_value = (F_value - min_value) / (max_value - min_value);
 % save data
-save([root_folder, '/surface_resources/cylinder/model/', ...
+save([root_folder, '/surface_resources/',model_name,'/model/', ...
     model_name, '_temperature_field.mat'], 'F_value');
 
 %% visulization

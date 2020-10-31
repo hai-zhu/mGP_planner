@@ -26,9 +26,9 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
         map_parameters.center_pos = [0; 0; 11];
     elseif strcmp(model.name, 'boeing747')
         map_parameters.dim_x_env = [-8 80];
-        map_parameters.dim_y_env = [-6 70];
-        map_parameters.dim_z_env = [16 48];
-        map_parameters.center_pos = [36; 32; 32];
+        map_parameters.dim_y_env = [-40 40];
+        map_parameters.dim_z_env = [-4 16];
+        map_parameters.center_pos = [36; 0; 0];
     elseif strcmp(model.name, 'ucylinder')
         map_parameters.dim_x_env = [-8 26];
         map_parameters.dim_y_env = [-8 16];
@@ -44,11 +44,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     map_parameters.num_faces = size(TR.ConnectivityList, 1);
     map_parameters.valid_faces = model.valid_faces;
     map_parameters.num_valid_faces = length(model.valid_faces);
-    dir = 1;
-    if strcmp(model.name, 'boeing747')
-        dir = -1;
-    end
-    map_parameters.F_normal = dir*faceNormal(TR);      % minus (flip) for boeing 747
+    map_parameters.F_normal = faceNormal(TR);
     map_parameters.F_center = incenter(TR);
     map_parameters.F_points = zeros(map_parameters.num_faces, 3, 3);
     for iFace = 1 : map_parameters.num_faces
@@ -61,16 +57,12 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     map_parameters.occupancy = model.occupancy;    
     % compute the esdf
     map_parameters.esdf = model.esdf; 
-    if strcmp(model.name, 'boeing747')          % flip for boeing747
-        map_parameters.occupancy = ~map_parameters.occupancy;
-        map_parameters.esdf = -map_parameters.esdf;
-    end
     % load the temperature field
     map_parameters.temperature_field = model.temperature_field;
     % max range for lattice search
-    map_parameters.lattice_range = 12;
+    map_parameters.lattice_range = 16;
     % kernel choice
-    map_parameters.kernel_choice = 0;   % 0-I; 1-Random SPD; 2-Matern; 3-SE; 4-Heat; 5-Geo Matern
+    map_parameters.kernel_choice = 2;   % 0-I; 1-Random SPD; 2-Matern; 3-SE; 4-Heat; 5-Geo Matern
     % matern kenel function parameters
     map_parameters.sigma_f = exp(0.3);  % 0.01, 0.3, 0.6
     map_parameters.l = exp(1.3); % 0.2, 1.3, 2.0
@@ -84,7 +76,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     planning_parameters.max_acc = 3;            % [m/s^2]
     planning_parameters.plan_yaw = 0;           % if also plan yaw polynomial trajectory
     planning_parameters.max_yaw_rate = deg2rad(90); % [rad/s]
-    planning_parameters.time_budget = 120;
+    planning_parameters.time_budget = 360;
     planning_parameters.lambda = 0.001;         % parameter to control 
                                                 % exploration-exploitation 
                                                 % trade-off in objective
@@ -92,7 +84,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     planning_parameters.use_threshold = 1;
     planning_parameters.lower_threshold = 0.0;
     planning_parameters.obj = 'rate';    % 'rate'/'exponential'
-    planning_parameters.control_points = 4;
+    planning_parameters.control_points = 5;
     
     %% global optimization paramters
     optimization_parameters.opt_method = 'cmaes'; % 'aco'
@@ -104,8 +96,8 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     optimization_parameters.cov_yaw = 3;
     
     %% matlab parameters
-    matlab_parameters.visualize_map = 0;
-    matlab_parameters.visualize_path = 0;
+    matlab_parameters.visualize_map = 1;
+    matlab_parameters.visualize_path = 1;
     matlab_parameters.visualize_cam = 0;
 
     disp('Parameters loaded!');
