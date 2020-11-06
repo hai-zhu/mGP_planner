@@ -22,6 +22,11 @@ p_meas = viewpoints_meas(:, 1:3);
     else
         [t, p] = sample_trajectory(trajectory, 0.1);
     end
+    
+    t = t(t<=240);
+    p = p(1:length(t), :);
+    
+    path = path(1:end-4,:);
 
     % Plot
     hold on
@@ -40,7 +45,9 @@ p_meas = viewpoints_meas(:, 1:3);
     end
 
     scatter3(ax, p_meas(:,1), p_meas(:,2), p_meas(:,3), 60, colors_meas, 'filled');
-
+    
+    scatter3(ax, p(end,1), p(end,2), p(end,3), 60, colors_meas(end), 'filled');
+    
     xlabel('x (m)')
     ylabel('y (m)')
     zlabel('z (m)')

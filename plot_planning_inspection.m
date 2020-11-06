@@ -9,7 +9,7 @@ matlab_parameters.seed_num = 3;
 rng(matlab_parameters.seed_num, 'twister');
 
 %% Environment
-model_name = 'cylinder';
+model_name = 'cylinder'; % cylinder, boeing747
 model.name = model_name;
 % mesh
 data_mesh = load([model_name, '_mesh.mat']);
@@ -33,13 +33,16 @@ model.temperature_field = data_temperature_field.F_value;
 
 
 %% Planning results
-results_name = 'cylinder_cmaes_kernel_5_metrics';
+results_name = 'cylinder_cmaes_kernel_5_metrics'; 
+% results_name = 'boeing747_cmaes_kernel_2_metrics';
+load([results_name, '.mat']);
 
 %% Ground truth and initial map
 dim_x_env = map_parameters.dim_x_env;
 dim_y_env = map_parameters.dim_y_env;
 dim_z_env = map_parameters.dim_z_env;
 dim_xyz_plot = [dim_x_env, dim_y_env, 0, dim_z_env(2)];
+% dim_xyz_plot = [dim_x_env, dim_y_env, dim_z_env];
 ground_truth_faces_map = create_ground_truth_map(map_parameters);
 faces_map = create_initial_map(map_parameters);
 P_prior = diag(faces_map.P);
@@ -50,7 +53,7 @@ if (matlab_parameters.visualize_map)
     
     subplot(2, 3, 1)
     hold on;
-    axis([-9 9 -9 9 0 25]);
+    axis(dim_xyz_plot);
     xlabel('x [m]');
     ylabel('y [m]');
     zlabel('z [m]');
@@ -64,11 +67,11 @@ if (matlab_parameters.visualize_map)
     
     subplot(2, 3, 2)
     hold on;
-    axis([-9 9 -9 9 0 25]);
+    axis(dim_xyz_plot);
     xlabel('x [m]');
     ylabel('y [m]');
     zlabel('z [m]');
-    title('Mean - prior')
+    title('Mean - inital')
     daspect([1 1 1]);
     view(3);
     trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
@@ -78,11 +81,11 @@ if (matlab_parameters.visualize_map)
     
     subplot(2, 3, 5)
     hold on;
-    axis([-9 9 -9 9 0 25]);
+    axis(dim_xyz_plot);
     xlabel('x [m]');
     ylabel('y [m]');
     zlabel('z [m]');
-    title(['Var. - prior. Trace = ', num2str(trace(faces_map.P), 5)])
+    title(['Var. - initial. Trace = ', num2str(trace(faces_map.P), 5)])
     daspect([1 1 1]);
     view(3);
     trisurf(TR.ConnectivityList, TR.Points(:,1), TR.Points(:,2), ...
@@ -93,7 +96,8 @@ if (matlab_parameters.visualize_map)
 end
 
 %% Take first measurement
-viewpoint_init = [10, 0, 4, -pi];
+% viewpoint_init = [-7.0711   -7.0711    4.0000    0.7854]; %[10, 0, 4, -pi]
+viewpoint_init = [-4   0    0    0];
 % comment if not taking a first measurement
 faces_map = take_measurement_at_viewpoint(viewpoint_init, faces_map, ...
         ground_truth_faces_map, map_parameters, sensor_parameters);
@@ -105,7 +109,7 @@ P_prior = P_post;
 % 
 %     subplot(2, 4, 3)
 %     hold on;
-%     axis([-9 9 -9 9 0 25]);
+%     axis(dim_xyz_plot);
 %     xlabel('x [m]');
 %     ylabel('y [m]');
 %     zlabel('z [m]');
@@ -119,7 +123,7 @@ P_prior = P_post;
 %     
 %     subplot(2, 4, 7)
 %     hold on;
-%     axis([-9 9 -9 9 0 25]);
+%     axis(dim_xyz_plot);
 %     xlabel('x [m]');
 %     ylabel('y [m]');
 %     zlabel('z [m]');
@@ -133,12 +137,11 @@ P_prior = P_post;
 % end
 
 %% Planning results
-load([results_name, '.mat']);
 if (matlab_parameters.visualize_map)
     
     subplot(2, 3, 3)
     hold on;
-    axis([-9 9 -9 9 0 25]);
+    axis(dim_xyz_plot);
     xlabel('x [m]');
     ylabel('y [m]');
     zlabel('z [m]');
@@ -152,7 +155,7 @@ if (matlab_parameters.visualize_map)
     
     subplot(2, 3, 6)
     hold on;
-    axis([-9 9 -9 9 0 25]);
+    axis(dim_xyz_plot);
     xlabel('x [m]');
     ylabel('y [m]');
     zlabel('z [m]');
@@ -186,7 +189,7 @@ if (matlab_parameters.visualize_path)
     
     num_path_segments = size(metrics.trajectory_travelled, 1);
     % path and viewpoints
-    axis([dim_x_env dim_y_env 0 dim_z_env(2)]);
+    axis(dim_xyz_plot);
     plot_path_viewpoints(ax_path, num_path_segments, metrics.path_travelled, ...
         metrics.trajectory_travelled, metrics.viewpoints_meas);
 

@@ -60,7 +60,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     % load the temperature field
     map_parameters.temperature_field = model.temperature_field;
     % max range for lattice search
-    map_parameters.lattice_range = 16;
+    map_parameters.lattice_range = 16;  % 8, 16
     % kernel choice
     map_parameters.kernel_choice = 2;   % 0-I; 1-Random SPD; 2-Matern; 3-SE; 4-Heat; 5-Geo Matern
     % matern kenel function parameters
@@ -76,7 +76,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     planning_parameters.max_acc = 3;            % [m/s^2]
     planning_parameters.plan_yaw = 0;           % if also plan yaw polynomial trajectory
     planning_parameters.max_yaw_rate = deg2rad(90); % [rad/s]
-    planning_parameters.time_budget = 360;
+    planning_parameters.time_budget = 240;      % 120, 240
     planning_parameters.lambda = 0.001;         % parameter to control 
                                                 % exploration-exploitation 
                                                 % trade-off in objective
@@ -84,7 +84,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     planning_parameters.use_threshold = 1;
     planning_parameters.lower_threshold = 0.0;
     planning_parameters.obj = 'rate';    % 'rate'/'exponential'
-    planning_parameters.control_points = 5;
+    planning_parameters.control_points = 4;     % 5, 4
     
     %% global optimization paramters
     optimization_parameters.opt_method = 'cmaes'; % 'aco'

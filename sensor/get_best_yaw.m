@@ -15,9 +15,9 @@ function yaw_best = get_best_yaw(pos, map_parameters)
                 dx = center_pos(1) - pos(1);
                 dy = center_pos(2) - pos(2);
                 yaw_best = atan2(dy, dx);
-            elseif (2*x-y-68 >= 0)
+            elseif (2*x-y-68 >= 0 && y > 0)
                 yaw_best = -pi;
-            elseif (2*x+y-68 >= 0 )
+            elseif (2*x+y-68 >= 0 && y < 0)
                 yaw_best = -pi;
             else
                 yaw_best = 0;

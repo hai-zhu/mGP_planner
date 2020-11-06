@@ -7,12 +7,12 @@ clc
 root_folder = pwd;
 
 % Random number generator
-matlab_parameters.seed_num = 3;
-rng(matlab_parameters.seed_num, 'twister');
+% matlab_parameters.seed_num = 3;
+% rng(matlab_parameters.seed_num, 'twister');
 
 
 %% Environment
-model_name = 'boeing747'; % cylinder, boeing747
+model_name = 'cylinder'; % cylinder, boeing747
 model.name = model_name;
 % mesh
 data_mesh = load([model_name, '_mesh.mat']);
@@ -40,8 +40,8 @@ ground_truth_faces_map = create_ground_truth_map(map_parameters);
 faces_map = create_initial_map(map_parameters);
 P_prior = diag(faces_map.P);
 
-% dim_xyz_plot = [-9 9 -9 9 0 25];
-dim_xyz_plot = [-8 80 -40 40 -4 16];
+dim_xyz_plot = [-9 9 -9 9 0 25];
+% dim_xyz_plot = [-8 80 -40 40 -4 16];
 if (matlab_parameters.visualize_map)
     
     figure;
@@ -92,8 +92,8 @@ end
 
 
 %% Take first measurement
-% viewpoint_init = [-7.0711   -7.0711    4.0000    0.7854]; %[10, 0, 4, -pi]
-viewpoint_init = [-4   0    0    0];
+viewpoint_init = [-7.0711   -7.0711    4.0000    0.7854]; %[10, 0, 4, -pi]
+% viewpoint_init = [-4   0    0    0];
 % comment if not taking a first measurement
 faces_map = take_measurement_at_viewpoint(viewpoint_init, faces_map, ...
         ground_truth_faces_map, map_parameters, sensor_parameters);
@@ -193,13 +193,30 @@ while (time_elapsed < planning_parameters.time_budget)
     end
     
     % Remove the viewpoints beyond budget
+    add_end_viewpoint = 0;
     idx_in_budget = find(times_meas <= planning_parameters.time_budget-time_elapsed);
     if length(idx_in_budget) < length(times_meas)
+        % reduce trajectory time
         trajectory_time = planning_parameters.time_budget - time_elapsed;
+        % add endtime viewpoint also as a measurement
+        add_end_viewpoint = 1;
+        [times_temp, points_temp, ~, ~] = sample_trajectory(trajectory, 0.1);
+        [~, yaws_temp, ~, ~] = sample_trajectory(yaw_trajectory, 0.1);
+        idx_temp = find(times_temp <= planning_parameters.time_budget-time_elapsed);
+        times_meas_last = planning_parameters.time_budget - time_elapsed;
+        points_meas_last = points_temp(idx_temp(end),:);
+        yaws_meas_last = yaws_temp(idx_temp(end),:);
     end
     times_meas = times_meas(idx_in_budget);
     points_meas = points_meas(idx_in_budget,:);
     yaws_meas = yaws_meas(idx_in_budget,:);
+    
+    % Add endtime viewpoint also as a measurement
+    if add_end_viewpoint
+        times_meas = [times_meas, times_meas_last];
+        points_meas = [points_meas; points_meas_last];
+        yaws_meas = [yaws_meas; yaws_meas_last];
+    end
 
     % Combine the viewpoints
     num_points_meas = size(points_meas,1);
@@ -296,8 +313,7 @@ if (matlab_parameters.visualize_path)
     
     num_path_segments = size(metrics.trajectory_travelled, 1);
     % path and viewpoints
-    axis([map_parameters.dim_x_env map_parameters.dim_y_env ...
-        0 map_parameters.dim_z_env(2)]);
+    axis(dim_xyz_plot);
     plot_path_viewpoints(ax_path, num_path_segments, metrics.path_travelled, ...
         metrics.trajectory_travelled, metrics.viewpoints_meas);
 
