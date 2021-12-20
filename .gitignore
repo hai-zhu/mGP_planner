@@ -1,11 +1,13 @@
 
 external/
-.Rproj.user
 
 logs/
 
-example_u_cylinder/model/ucylinder_heat_kernel.mat
 
-example_cylinder/model/cylinder_heat_kernel.mat
+surface_resources/cylinder/model/cylinder_heat_kernel.mat
 
-example_cylinder/results/
+eval/planning_method/cylinder_kernel_5.mat
+
+eval/spatial_correlation/cylinder_ipp_correlation.mat
+
+eval/spatial_correlation/cylinder_ipp_correlation_I_SPD.mat

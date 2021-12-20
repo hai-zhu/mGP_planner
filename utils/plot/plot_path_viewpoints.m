@@ -22,6 +22,11 @@ p_meas = viewpoints_meas(:, 1:3);
     else
         [t, p] = sample_trajectory(trajectory, 0.1);
     end
+    
+    t = t(t<=240);
+    p = p(1:length(t), :);
+    
+    path = path(1:end-4,:);
 
     % Plot
     hold on
@@ -29,7 +34,7 @@ p_meas = viewpoints_meas(:, 1:3);
     h_line = cline(p(:,1), p(:,2), p(:,3), t);
     set(h_line, 'LineWidth', 2.5);
     % Visualize control points.
-    scatter3(ax, path(:,1), path(:,2), path(:,3), 40, 'dk', 'MarkerFaceColor',[0 .75 .75]);
+    scatter3(ax, path(:,1), path(:,2), path(:,3), 200, 'xk', 'MarkerFaceColor',[0 .75 .75]);
     % Visualize measurements.
     colors_meas = linspace(0, t(end), size(p_meas,1));
 
@@ -39,8 +44,10 @@ p_meas = viewpoints_meas(:, 1:3);
         colors_meas = colors_meas';
     end
 
-    scatter3(ax, p_meas(:,1), p_meas(:,2), p_meas(:,3), 120, colors_meas, 'filled');
-
+    scatter3(ax, p_meas(:,1), p_meas(:,2), p_meas(:,3), 60, colors_meas, 'filled');
+    
+    scatter3(ax, p(end,1), p(end,2), p(end,3), 60, colors_meas(end), 'filled');
+    
     xlabel('x (m)')
     ylabel('y (m)')
     zlabel('z (m)')

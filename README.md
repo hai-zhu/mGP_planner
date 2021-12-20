@@ -1,2 +1,2 @@
 # mGP_planner
-Informative motion planning for active field mapping on manifolds
+Online Informative Path Planning for UAV-based 3D Surface Active Information Gathering

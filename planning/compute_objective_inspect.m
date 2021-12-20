@@ -44,6 +44,13 @@ function obj = compute_objective_inspect(control_points, faces_map, map_paramete
     [~, yaws_meas, ~, ~] = sample_trajectory(yaw_trajectory, ...
         1/planning_parameters.measurement_frequency);
     
+    % Alternatively, spercify a yaw to the measurement point
+    if planning_parameters.plan_yaw == 0
+        for i = 1 : size(points_meas,1)
+            yaws_meas(i) = get_best_yaw(points_meas(i,1:3), map_parameters);
+        end
+    end
+    
     % Sample trajecoty to check collisions
 %     coll_check_frequency = map_parameters.resolution / planning_parameters.max_vel;
     coll_check_frequency = 1.0;
