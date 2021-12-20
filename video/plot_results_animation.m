@@ -5,16 +5,16 @@ clear
 clc 
 
 %% Load planning results (only contains information metrics.mat)
-% results_name = 'cylinder_cmaes_kernel_5_metrics'; 
-results_name = 'boeing747_cmaes_kernel_2_metrics';
+results_name = 'cylinder_cmaes_kernel_5_metrics'; 
+% results_name = 'boeing747_cmaes_kernel_2_metrics';
 load([results_name, '.mat']);
-% viewpoint_init = [-7.0711   -7.0711    4.0000    0.7854];
-viewpoint_init = [-4   0    0    0];
+viewpoint_init = [-7.0711   -7.0711    4.0000    0.7854];
+% viewpoint_init = [-4   0    0    0];
 
 
 %% Insepection setups
 % model
-model_name = 'boeing747';        % cylinder, boeing747
+model_name = 'cylinder';        % cylinder, boeing747
 model.name = model_name;
 radius = 1.2;
 % mesh

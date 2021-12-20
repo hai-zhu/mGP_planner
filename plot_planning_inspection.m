@@ -33,8 +33,13 @@ model.temperature_field = data_temperature_field.F_value;
 
 
 %% Planning results
-results_name = 'cylinder_cmaes_kernel_5_metrics'; 
-% results_name = 'boeing747_cmaes_kernel_2_metrics';
+if model_name == 'cylinder'
+    results_name = 'cylinder_cmaes_kernel_5_metrics'; 
+elseif model_name == 'boeing747'
+    results_name = 'boeing747_cmaes_kernel_2_metrics';
+else
+    error('Results not found!')
+end
 load([results_name, '.mat']);
 
 %% Ground truth and initial map

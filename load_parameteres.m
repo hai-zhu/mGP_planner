@@ -62,7 +62,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     % max range for lattice search
     map_parameters.lattice_range = 16;  % 8, 16
     % kernel choice
-    map_parameters.kernel_choice = 2;   % 0-I; 1-Random SPD; 2-Matern; 3-SE; 4-Heat; 5-Geo Matern
+    map_parameters.kernel_choice = 5;   % 0-I; 1-Random SPD; 2-Matern; 3-SE; 4-Heat; 5-Geo Matern
     % matern kenel function parameters
     map_parameters.sigma_f = exp(0.3);  % 0.01, 0.3, 0.6
     map_parameters.l = exp(1.3); % 0.2, 1.3, 2.0
@@ -76,7 +76,7 @@ function [map_parameters, sensor_parameters, planning_parameters, ...
     planning_parameters.max_acc = 3;            % [m/s^2]
     planning_parameters.plan_yaw = 0;           % if also plan yaw polynomial trajectory
     planning_parameters.max_yaw_rate = deg2rad(90); % [rad/s]
-    planning_parameters.time_budget = 240;      % 120, 240
+    planning_parameters.time_budget = 120;      % 120, 240
     planning_parameters.lambda = 0.001;         % parameter to control 
                                                 % exploration-exploitation 
                                                 % trade-off in objective

@@ -34,12 +34,16 @@ model.temperature_field = data_temperature_field.F_value;
 
 
 %% Ground truth and initial map
+dim_x_env = map_parameters.dim_x_env;
+dim_y_env = map_parameters.dim_y_env;
+dim_z_env = map_parameters.dim_z_env;
+dim_xyz_plot = [dim_x_env, dim_y_env, 0, dim_z_env(2)];
+% dim_xyz_plot = [dim_x_env, dim_y_env, dim_z_env];
+% dim_xyz_plot = [-9 9 -9 9 0 25];
+% dim_xyz_plot = [-8 80 -40 40 -4 16];
 ground_truth_faces_map = create_ground_truth_map(map_parameters);
 faces_map = create_initial_map(map_parameters);
 P_prior = diag(faces_map.P);
-
-dim_xyz_plot = [-9 9 -9 9 0 25];
-% dim_xyz_plot = [-8 80 -40 40 -4 16];
 if (matlab_parameters.visualize_map)
     
     figure;
