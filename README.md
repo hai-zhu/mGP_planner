@@ -1,5 +1,8 @@
 # Online Informative Path Planning for Active Information Gathering of a 3D Surface
 
+
+![storage_tank_inspection](./paper/storage_tank_inspection.gif)
+
 This repository contains the code for the paper:
 
 **<a href="https://ieeexplore.ieee.org/document/9561963">Online Informative Path Planning for Active Information Gathering of a 3D Surface</a>**
